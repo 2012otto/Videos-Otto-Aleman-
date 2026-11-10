@@ -5,7 +5,8 @@ Requiere:
   OPENVOICE_DIR = carpeta del repo github.com/myshell-ai/OpenVoice
   OPENVOICE_CKPT = carpeta con converter/config.json y converter/checkpoint.pth (HF myshell-ai/OpenVoiceV2)
 Uso:
-  python3 src/clone_voice.py REF.(mp4|wav) archivo1.mp3 [archivo2.mp3 ...] --out-dir DIR [--tau 0.3]
+  python3 src/clone_voice.py --ref REF1.wav [REF2.wav ...] --src archivo1.mp3 [...] --out-dir DIR [--tau 0.3]
+  (los audios de referencia largos se cortan en fragmentos de ~10 s y se promedia la huella de voz)
 """
 import argparse
 import os
@@ -26,8 +27,9 @@ def to_wav(src, dst, sr=22050):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("ref")
-    ap.add_argument("sources", nargs="+")
+    ap.add_argument("--ref", nargs="+", required=True)
+    ap.add_argument("--src", dest="sources", nargs="+", required=True)
+    ap.add_argument("--chunk", type=float, default=10.0)
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--tau", type=float, default=0.3)
     a = ap.parse_args()
@@ -40,8 +42,18 @@ def main():
     conv.version = getattr(conv.hps, "_version_", "v1")
     conv.load_ckpt(os.path.join(ck, "checkpoint.pth"))
 
-    ref = to_wav(a.ref, os.path.join(a.out_dir, "_ref.wav"))
-    tgt = conv.extract_se([ref])
+    refs = []
+    rdir = os.path.join(a.out_dir, "_ref")
+    os.makedirs(rdir, exist_ok=True)
+    for i, r in enumerate(a.ref):
+        subprocess.check_call(["ffmpeg", "-v", "error", "-y", "-i", r, "-vn", "-ac", "1", "-ar", "22050", "-f", "segment",
+                               "-segment_time", str(a.chunk), os.path.join(rdir, f"r{i}_%03d.wav")])
+    for f in sorted(os.listdir(rdir)):
+        path = os.path.join(rdir, f)
+        if os.path.getsize(path) > 22050 * 2 * 2:  # descarta fragmentos de menos de ~2 s
+            refs.append(path)
+    print(f"{len(refs)} fragmentos de referencia")
+    tgt = conv.extract_se(refs)
     wavs = [to_wav(s, os.path.join(a.out_dir, "_src_" + os.path.basename(s) + ".wav")) for s in a.sources]
     src = conv.extract_se(wavs)
     sim = torch.nn.functional.cosine_similarity(src.flatten(), tgt.flatten(), dim=0).item()
