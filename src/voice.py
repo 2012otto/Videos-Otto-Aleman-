@@ -10,8 +10,8 @@ import subprocess
 import edge_tts
 
 VOICE = "es-GT-AndresNeural"
-RATE = "-6%"
-PITCH = "-2Hz"
+RATE = os.environ.get("VO_RATE", "-6%")
+PITCH = os.environ.get("VO_PITCH", "+30Hz")  # +30Hz: base para clonar la voz de referencia (140 Hz)
 
 SCENES = [
     "Siempre soñé con tener ese perfume... pero el frasco completo costaba demasiado.",
