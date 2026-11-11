@@ -297,7 +297,7 @@ EXPR = {
 
 
 def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.0, legs=(0.0, 0.0),
-             bob=0.0, blink=True, behind_hand=None, front_props=None, style=None):
+             bob=0.0, blink=True, behind_hand=None, front_props=None, style=None, talk=0.0):
     """Personaje (por defecto: chico de suéter azul). (x, y) = pies.
     hands = {'L': (hx, hy), 'R': (hx, hy)} en coords locales.
     style: shirt (3 colores), arm, pants (2), hair ('short'|'long'), lashes, earrings (color)."""
@@ -460,7 +460,10 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
         oval(c, side * 62, 38, 18, 10, P("#ff7f93", alpha=0.42))
     mx, my = lx * 0.6, 50 + ly * 0.4
     m = skia.Path()
-    if mouth == "smile":
+    if talk > 0.08:  # boca hablando (sincronizada con la voz)
+        oval(c, mx, my + 6, 15 + 5 * talk, 4 + 15 * talk, P("#5a2230"))
+        oval(c, mx, my + 8 + 9 * talk, 8 + 2 * talk, 2 + 4 * talk, P("#ff8a9a"))
+    elif mouth == "smile":
         m.moveTo(mx - 20, my)
         m.quadTo(mx, my + 18, mx + 20, my)
         c.drawPath(m, P(st["lips"], "stroke", 6))
@@ -1209,6 +1212,7 @@ def draw_watermark(c):
 # cuadro completo
 # ----------------------------------------------------------------------------
 TRANS = 0.45
+FADE_IN = 0.35
 
 
 def render_scene(c, vo, si, t):
@@ -1236,7 +1240,7 @@ def render_frame(c, t, vo, phr, total):
     else:
         render_scene(c, vo, si, t)
     vignette(c)
-    fade_in = clamp(t / 0.35)
+    fade_in = clamp(t / FADE_IN) if FADE_IN > 0 else 1.0
     fade_out = clamp((total - t) / 0.5)
     if fade_in < 1 or fade_out < 1:
         c.drawRect(R(0, 0, W, H), P("#000000", alpha=1 - min(fade_in, fade_out)))

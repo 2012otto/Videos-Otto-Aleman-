@@ -58,6 +58,9 @@ def phrases(vo, max_words=6):
                 out.append({"scene": si, "words": cur})
                 cur = []
                 continue
+            nxt_ends = left > 0 and toks[k + 1]["w"][-1] in ".?!"
+            if len(cur) >= max_words and nxt_ends and len(cur) < max_words + 1 and not end_punct:
+                continue  # deja que la oración termine en la misma frase
             if (end_punct and len(cur) >= 2) or len(cur) >= max_words or left == 0:
                 out.append({"scene": si, "words": cur})
                 cur = []
