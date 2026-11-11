@@ -1313,6 +1313,7 @@ def draw_watermark(c):
 # ----------------------------------------------------------------------------
 TRANS = 0.45
 FADE_IN = 0.35
+HARD_CUTS = set()  # escenas que entran con corte seco (sin fundido)
 
 
 def render_scene(c, vo, si, t):
@@ -1329,7 +1330,7 @@ def render_frame(c, t, vo, phr, total):
     si = max(i for i, s in enumerate(vo) if s["start"] <= t) if t >= 0 else 0
     c.clear(hexc("#000000"))
     lt = t - vo[si]["start"]
-    if si > 0 and lt < TRANS:
+    if si > 0 and lt < TRANS and si not in HARD_CUTS:
         render_scene(c, vo, si - 1, t)
         c.saveLayerAlpha(None, int(255 * smooth(lt / TRANS)))
         render_scene(c, vo, si, t)

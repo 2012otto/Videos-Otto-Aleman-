@@ -1,0 +1,15 @@
+{
+ "voice": "es-ES-AlvaroNeural",
+ "rate": "-8%",
+ "pitch": "-4Hz",
+ "pauses": [0, 0, 0, 1.0, 0, 0, 0],
+ "scenes": [
+  "Hace más de cien años, un barco naufragó en medio del océano. Solo un hombre sobrevivió.",
+  "Durante meses, escribió un último mensaje... lo guardó en una botella... y lo lanzó al mar.",
+  "La botella cruzó océanos, tormentas... y más de un siglo.",
+  "Hasta que un día, en una playa de Guatemala, alguien la encontró. Y lo que decía... cambió todo.",
+  "Decía: Ya llegaron los nuevos perfumes árabes a Otto Aleman Perfumes.",
+  "Y sí... la botella era un decant.",
+  "Comenta BOTELLA y te damos un 10% de descuento."
+ ]
+}
