@@ -289,9 +289,11 @@ def scene3(c, k):  # DATO 2: distinto en cada piel
             pill_gold(c, people[i][0], 1450, lab, kk, fg=col)
 
 
-def pill_gold(c, x, y, text, k, size=34, fg="#2a1608", bg=None):
+def pill_gold(c, x, y, text, k, size=34, fg=None, bg=None):
     if k <= 0:
         return
+    if fg is None:  # texto dorado sobre fondo oscuro, oscuro sobre fondo dorado
+        fg = "#f7d27a" if bg is None else "#2a1608"
     s = back_out(k)
     f = font(R.RES.xbold, size)
     w = f.measureText(text) + size * 1.2

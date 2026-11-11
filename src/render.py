@@ -303,8 +303,11 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
     style: shirt (3 colores), arm, pants (2), hair ('short'|'long'), lashes, earrings (color)."""
     st = {"shirt": ("#5a8cf0", "#3a68cf", "#2a4fae"), "hem": "#2c4fa8", "collar": "#2b4ca3", "arm": "#3a69cf",
           "arm_hl": "#5b8df0", "pants": ("#34498c", "#22346c"), "hair": "short", "hair_col": ("#2c2a3d", "#141320"),
-          "lashes": False, "earrings": None, "lips": "#4a1f2a"}
+          "lashes": False, "earrings": None, "lips": "#4a1f2a", "robe": False, "headwear": None,
+          "head_col": ("#d9a066", "#a87440"), "ghutra": ("#ffffff", None), "beard": None, "glasses": False,
+          "skin": ("#ffe6cf", "#f9caa5", "#eeb08a")}
     st.update(style or {})
+    sk = st["skin"]
     eyes, brows, mouth = EXPR[expr]
     hands = hands or {}
     c.save()
@@ -319,6 +322,9 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
     c.translate(0, bob)
     # piernas
     for side, ang in ((-1, legs[0]), (1, legs[1])):
+        if st["robe"]:  # con túnica solo se ven las sandalias
+            oval(c, side * 34 + ang * 0.8, -4, 34, 14, P("#7a5230"))
+            continue
         c.save()
         c.translate(side * 32, -200)
         c.rotate(ang)
@@ -330,15 +336,26 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
     body = skia.Path()
     body.moveTo(-60, -402)
     body.quadTo(-94, -392, -98, -352)
-    body.lineTo(-106, -214)
-    body.quadTo(-106, -178, -72, -178)
-    body.lineTo(72, -178)
-    body.quadTo(106, -178, 106, -214)
+    if st["robe"]:  # túnica larga hasta los pies
+        body.lineTo(-128, -24)
+        body.quadTo(-128, -2, -100, -2)
+        body.lineTo(100, -2)
+        body.quadTo(128, -2, 128, -24)
+    else:
+        body.lineTo(-106, -214)
+        body.quadTo(-106, -178, -72, -178)
+        body.lineTo(72, -178)
+        body.quadTo(106, -178, 106, -214)
     body.lineTo(98, -352)
     body.quadTo(94, -392, 60, -402)
     body.close()
-    c.drawPath(body, P("#3f72d6", shader=lin(-100, -400, 100, -180, list(st["shirt"]), [0, .55, 1])))
-    rrect(c, -106, -206, 106, -178, 18, P(st["hem"]))
+    c.drawPath(body, P("#3f72d6", shader=lin(-100, -400, 100, -180 if not st["robe"] else 0, list(st["shirt"]), [0, .55, 1])))
+    if st["robe"]:
+        c.drawLine(0, -395, 0, -250, P("#000000", "stroke", 3, alpha=0.12))
+        c.drawLine(-40, -150, -50, -10, P("#000000", "stroke", 3, alpha=0.06))
+        c.drawLine(40, -150, 50, -10, P("#000000", "stroke", 3, alpha=0.06))
+    else:
+        rrect(c, -106, -206, 106, -178, 18, P(st["hem"]))
     c.drawPath(body, P("#ffffff", "stroke", 3, alpha=0.08))
     oval(c, 0, -400, 44, 15, P(st["collar"]))
     # brazos
@@ -368,11 +385,29 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
     if behind_hand:
         behind_hand(c, out)
     for key, (tx, ty) in out.items():
-        oval(c, tx, ty, 23, 23, P("#f6c09a", shader=rad(tx - 8, ty - 8, 30, list(SKIN))))
+        oval(c, tx, ty, 23, 23, P("#f6c09a", shader=rad(tx - 8, ty - 8, 30, [sk[0], sk[1]])))
     # cabeza
     c.save()
     c.translate(0, -508)
     c.rotate(tilt)
+    if st["headwear"] == "ghutra":  # paño que cae por detrás hasta los hombros
+        gcol, gpat = st["ghutra"]
+        drape = skia.Path()
+        drape.moveTo(-124, -10)
+        drape.cubicTo(-136, -140, 136, -140, 124, -10)
+        drape.lineTo(150, 170)
+        drape.quadTo(150, 205, 110, 205)
+        drape.lineTo(-110, 205)
+        drape.quadTo(-150, 205, -150, 170)
+        drape.close()
+        c.drawPath(drape, P(gcol, shader=lin(0, -130, 0, 205, [gcol, "#e6e2da"])))
+        if gpat:
+            c.save()
+            c.clipPath(drape, True)
+            for i in range(-8, 9):
+                c.drawLine(i * 26, -140, i * 26 + 80, 210, P(gpat, "stroke", 4, alpha=0.55))
+                c.drawLine(i * 26, -140, i * 26 - 80, 210, P(gpat, "stroke", 4, alpha=0.55))
+            c.restore()
     if st["hair"] == "long":  # melena por detrás de la cabeza
         back = skia.Path()
         back.moveTo(-118, 0)
@@ -384,11 +419,11 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
         back.close()
         c.drawPath(back, P("#1d1c2a", shader=lin(0, -120, 0, 190, list(st["hair_col"]))))
     for side in (-1, 1):
-        oval(c, side * 103, 8, 20, 24, P("#f0b48c"))
+        oval(c, side * 103, 8, 20, 24, P(sk[2]))
         if st["earrings"]:
             oval(c, side * 104, 40, 8, 8, P(st["earrings"]))
             oval(c, side * 102, 37, 3, 3, P("#ffffff", alpha=0.8))
-    oval(c, 0, 0, 108, 102, P("#f6c09a", shader=rad(-34, -36, 170, ["#ffe6cf", "#f9caa5", "#eeb08a"], [0, .6, 1])))
+    oval(c, 0, 0, 108, 102, P("#f6c09a", shader=rad(-34, -36, 170, list(sk), [0, .6, 1])))
     hair = skia.Path()
     if st["hair"] == "long":  # flequillo de lado
         hair.moveTo(-110, 30)
@@ -408,11 +443,48 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
         hair.quadTo(-24, -72, -52, -50)
         hair.quadTo(-84, -60, -100, -30)
         hair.close()
-    c.drawPath(hair, P("#1d1c2a", shader=lin(0, -120, 0, -30, list(st["hair_col"]))))
-    hl = skia.Path()
-    hl.moveTo(-50, -100)
-    hl.quadTo(-10, -114, 30, -106)
-    c.drawPath(hl, P("#ffffff", "stroke", 6, alpha=0.18))
+    if st["hair"] != "none":
+        c.drawPath(hair, P("#1d1c2a", shader=lin(0, -120, 0, -30, list(st["hair_col"]))))
+        hl = skia.Path()
+        hl.moveTo(-50, -100)
+        hl.quadTo(-10, -114, 30, -106)
+        c.drawPath(hl, P("#ffffff", "stroke", 6, alpha=0.18))
+    hw = st["headwear"]
+    if hw == "ghutra":
+        gcol, gpat = st["ghutra"]
+        top = skia.Path()
+        top.moveTo(-122, 10)
+        top.cubicTo(-130, -150, 130, -150, 122, 10)
+        top.quadTo(110, -52, 0, -58)
+        top.quadTo(-110, -52, -122, 10)
+        top.close()
+        c.drawPath(top, P(gcol))
+        if gpat:
+            c.save()
+            c.clipPath(top, True)
+            for i in range(-8, 9):
+                c.drawLine(i * 26, -150, i * 26 + 60, 20, P(gpat, "stroke", 4, alpha=0.55))
+                c.drawLine(i * 26, -150, i * 26 - 60, 20, P(gpat, "stroke", 4, alpha=0.55))
+            c.restore()
+        oval(c, 0, -84, 104, 26, P("#1a1a1a", "stroke", 9))  # agal
+        oval(c, 0, -96, 98, 22, P("#1a1a1a", "stroke", 8))
+    elif hw == "cap":
+        hc = st["head_col"]
+        dome = skia.Path()
+        dome.moveTo(-112, -24)
+        dome.cubicTo(-116, -128, 116, -128, 112, -24)
+        dome.close()
+        c.drawPath(dome, P(hc[0], shader=lin(0, -128, 0, -24, list(hc))))
+        oval(c, 0, -26, 122, 22, P(hc[1]))
+        oval(c, 0, -112, 10, 7, P(hc[1]))
+    elif hw == "safari":
+        oval(c, 0, -46, 170, 34, P("#c9a46a"))
+        dome = skia.Path()
+        dome.moveTo(-104, -46)
+        dome.cubicTo(-110, -160, 110, -160, 104, -46)
+        dome.close()
+        c.drawPath(dome, P("#d9b47a", shader=lin(0, -160, 0, -46, ["#e9c88e", "#b8915a"])))
+        c.drawRect(R(-104, -76, 104, -54), P("#7a5230"))
     lx, ly = look[0] * 9, look[1] * 7
     blinking = blink and eyes in ("open", "wide") and ((t + 0.7) % 3.6) < 0.11
     dark = P("#1a1a24")
@@ -439,6 +511,11 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
                 c.drawPath(lp, P("#1a1a24", "stroke", 4))
             oval(c, ex + 5, ey - 7, 5, 5, P("#ffffff"))
             oval(c, ex - 4, ey + 6, 2.2, 2.2, P("#ffffff", alpha=0.7))
+    if st["glasses"]:
+        for side in (-1, 1):
+            rrect(c, side * 38 - 30, -16, side * 38 + 30, 26, 14, P("#14101c", alpha=0.92))
+            rrect(c, side * 38 - 22, -10, side * 38 - 6, 2, 5, P("#ffffff", alpha=0.25))
+        c.drawLine(-8, -2, 8, -2, P("#14101c", "stroke", 6))
     # cejas
     for side in (-1, 1):
         bx, by = side * 40 + lx * 0.5, -30 + ly * 0.4
@@ -459,6 +536,21 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
     for side in (-1, 1):
         oval(c, side * 62, 38, 18, 10, P("#ff7f93", alpha=0.42))
     mx, my = lx * 0.6, 50 + ly * 0.4
+    if st["beard"]:
+        bd = skia.Path()
+        bd.moveTo(-104, 0)
+        bd.quadTo(-96, 112, 0, 116)
+        bd.quadTo(96, 112, 104, 0)
+        bd.quadTo(82, 70, 34, 72)
+        bd.quadTo(0, 66, -34, 72)
+        bd.quadTo(-82, 70, -104, 0)
+        bd.close()
+        c.drawPath(bd, P(st["beard"]))
+        ms = skia.Path()
+        ms.moveTo(mx - 30, my - 2)
+        ms.quadTo(mx, my - 20, mx + 30, my - 2)
+        ms.quadTo(mx, my - 8, mx - 30, my - 2)
+        c.drawPath(ms, P(st["beard"]))
     m = skia.Path()
     if talk > 0.08:  # boca hablando (sincronizada con la voz)
         oval(c, mx, my + 6, 15 + 5 * talk, 4 + 15 * talk, P("#5a2230"))
@@ -1138,6 +1230,7 @@ SUB_LINE = 80
 SUB_MAXW = 920
 BLUE = "#2f6bff"
 SUB_BOX, SUB_BOX_BORDER, SUB_TEXT_ACTIVE = BLUE, "#8fb2ff", "#ffffff"
+SUB_PLATE = False
 
 
 def layout_phrase(p):
@@ -1173,6 +1266,13 @@ def draw_subs(c, t, phr):
         lay = p.setdefault("_lay", layout_phrase(p))
         shown = [i for i, (w, _, _, _) in enumerate(lay) if t >= w["s"] - 0.04]
         cur = shown[-1] if shown else -1
+        if SUB_PLATE and cur >= 0:  # placa oscura que crece con las palabras dichas
+            vis = lay[:cur + 1]
+            for ly in sorted(set(y for _, _, y, _ in vis)):
+                row = [(x, wd) for _, x, y, wd in vis if y == ly]
+                x0 = min(x for x, _ in row) - 24
+                x1 = max(x + wd for x, wd in row) + 24
+                rrect(c, x0, ly - SUB_SIZE * 0.98, x1, ly + SUB_SIZE * 0.42, 22, P("#0c0818", alpha=0.55 * fade))
         last = lay[-1][0]
         for i, (w, x, y, wd) in enumerate(lay):
             if i > cur:

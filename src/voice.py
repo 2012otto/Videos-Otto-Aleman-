@@ -61,7 +61,10 @@ async def main():
     for i, t in enumerate(SCENES):
         for intento in range(5):  # el servicio a veces no devuelve audio: reintentar
             try:
-                out.append(await synth(i, t))
+                r = await synth(i, t)
+                if len(r["words"]) != len(t.split()) and intento < 4:
+                    raise edge_tts.exceptions.NoAudioReceived("audio incompleto")  # reintentar
+                out.append(r)
                 break
             except edge_tts.exceptions.NoAudioReceived:
                 if intento == 4:
