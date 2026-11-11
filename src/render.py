@@ -466,8 +466,9 @@ def draw_kid(c, x, y, s, t, expr="neutral", look=(0.0, 0.0), hands=None, tilt=0.
                 c.drawLine(i * 26, -150, i * 26 + 60, 20, P(gpat, "stroke", 4, alpha=0.55))
                 c.drawLine(i * 26, -150, i * 26 - 60, 20, P(gpat, "stroke", 4, alpha=0.55))
             c.restore()
-        oval(c, 0, -84, 104, 26, P("#1a1a1a", "stroke", 9))  # agal
-        oval(c, 0, -96, 98, 22, P("#1a1a1a", "stroke", 8))
+        if st.get("agal", True):
+            oval(c, 0, -84, 104, 26, P("#1a1a1a", "stroke", 9))  # agal
+            oval(c, 0, -96, 98, 22, P("#1a1a1a", "stroke", 8))
     elif hw == "cap":
         hc = st["head_col"]
         dome = skia.Path()

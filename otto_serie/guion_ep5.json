@@ -1,0 +1,16 @@
+{
+ "voice": "es-ES-AlvaroNeural",
+ "rate": "-6%",
+ "pitch": "-4Hz",
+ "pauses": [0, 0, 0, 1.0, 0, 0, 0, 0],
+ "scenes": [
+  "Cuenta la leyenda que un humilde mercader encontró una lámpara antigua, enterrada en la arena del desierto.",
+  "Al frotarla... un humo dorado llenó el cielo. Y apareció un genio.",
+  "El genio le concedió tres deseos. Primero pidió oro... luego, un palacio.",
+  "Y para el último deseo... pidió algo que ni el genio esperaba.",
+  "Quiero oler increíble... sin gastar una fortuna.",
+  "El genio sonrió: Para eso no necesitas un genio... necesitas un decant de Otto Aleman Perfumes.",
+  "Y desde ese día, todo el pueblo huele increíble.",
+  "Comenta GENIO, visita nuestra página y encuentra los mejores descuentos."
+ ]
+}
