@@ -1,0 +1,15 @@
+{
+ "voice": "en-US-AvaMultilingualNeural",
+ "rate": "+4%",
+ "pitch": "+0Hz",
+ "scenes": [
+  "Tu emprendimiento no está fallando por tener pocos seguidores...",
+  "Está fallando por estos tres errores.",
+  "Error uno: escondes tus precios. Si tienen que preguntar, la mayoría no pregunta... simplemente se va.",
+  "Error dos: tus productos están perdidos entre memes, stories y fotos viejas. Nadie va a buscarlos.",
+  "Error tres: comprarte es un laberinto. Diez mensajes para un pedido... y el cliente se cansa.",
+  "Con trescientos seguidores que te compran, vendes más que con diez mil que solo miran.",
+  "Velto resuelve los tres: precios claros, todo en un enlace y pedidos en un mensaje.",
+  "Comenta ERRORES y te hacemos tu página 100% gratis."
+ ]
+}

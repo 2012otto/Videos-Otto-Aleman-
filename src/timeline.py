@@ -14,7 +14,7 @@ TAIL = 1.60   # cierre después de la última frase
 PRE = 0.20    # la escena visual empieza un poco antes que su voz
 
 PUNCT = ".,:;?!…"
-DISPLAY = {"cincuenta": "50"}  # cómo se escribe en subtítulos lo que la voz dice en palabras
+DISPLAY = {"cincuenta": "50", "trescientos": "300", "diez": "10", "Diez": "10"}  # cómo se escribe en subtítulos lo que la voz dice en palabras
 
 
 def load():
