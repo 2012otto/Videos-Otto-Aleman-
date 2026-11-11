@@ -6,7 +6,7 @@ import json
 import os
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
+BUILD = os.environ.get("VIDEO_BUILD", os.path.join(ROOT, "build"))
 
 LEAD = 0.35   # silencio antes de la primera frase
 GAP = 0.30    # pausa entre escenas
@@ -19,6 +19,9 @@ PUNCT = ".,:;?!…"
 def load():
     with open(os.path.join(BUILD, "voice.json")) as f:
         vo = json.load(f)
+    if os.environ.get("VO_TRIM"):  # recorta el silencio final de cada clip de voz
+        for s in vo:
+            s["dur"] = min(s["dur"], s["words"][-1]["e"] + float(os.environ["VO_TRIM"]))
     t = LEAD
     for s in vo:
         s["vo_start"] = t

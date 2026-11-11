@@ -25,7 +25,16 @@ SCENES = [
 ]
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BUILD = os.path.join(ROOT, "build")
+BUILD = os.environ.get("VIDEO_BUILD", os.path.join(ROOT, "build"))
+
+# un guion alternativo (otro proyecto) puede venir en un JSON: {"voice", "rate", "pitch", "scenes": [...]}
+if os.environ.get("VIDEO_SCRIPT"):
+    with open(os.environ["VIDEO_SCRIPT"]) as _f:
+        _cfg = json.load(_f)
+    VOICE = _cfg.get("voice", VOICE)
+    RATE = _cfg.get("rate", RATE)
+    PITCH = _cfg.get("pitch", PITCH)
+    SCENES = _cfg["scenes"]
 
 
 async def synth(i, text):

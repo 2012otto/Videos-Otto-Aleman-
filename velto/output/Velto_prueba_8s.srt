@@ -1,0 +1,19 @@
+1
+00:00:00,397 --> 00:00:01,932
+Esta es Ana.
+
+2
+00:00:02,092 --> 00:00:03,826
+Vende joyería hecha a mano...
+
+3
+00:00:03,826 --> 00:00:06,036
+pero sus mensajes son un caos.
+
+4
+00:00:06,233 --> 00:00:07,365
+Fotos sueltas,
+
+5
+00:00:07,365 --> 00:00:08,000
+precios repetidos...
