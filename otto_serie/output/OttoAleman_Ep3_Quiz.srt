@@ -1,0 +1,87 @@
+1
+00:00:00,479 --> 00:00:02,075
+¿Cuánto sabes de perfumes?
+
+2
+00:00:02,075 --> 00:00:03,113
+A es verdadero,
+
+3
+00:00:03,113 --> 00:00:04,383
+B es falso.
+
+4
+00:00:04,561 --> 00:00:06,447
+Uno: ¿Es malo frotarte las muñecas
+
+5
+00:00:06,447 --> 00:00:08,219
+después de echarte perfume?
+
+6
+00:00:11,508 --> 00:00:13,015
+Dos: ¿El baño es el mejor
+
+7
+00:00:13,015 --> 00:00:14,821
+lugar para guardar tu perfume?
+
+8
+00:00:18,110 --> 00:00:19,639
+Tres: ¿Un Eau de Parfum es
+
+9
+00:00:19,639 --> 00:00:21,713
+más concentrado que un Eau de Toilette?
+
+10
+00:00:25,002 --> 00:00:26,420
+Comenta tus respuestas,
+
+11
+00:00:26,420 --> 00:00:28,228
+como AAB o BAB,
+
+12
+00:00:28,228 --> 00:00:30,426
+y te damos un 10% de descuento.
+
+13
+00:00:30,426 --> 00:00:31,741
+Las respuestas:
+
+14
+00:00:31,919 --> 00:00:33,069
+Uno: A,
+
+15
+00:00:33,069 --> 00:00:35,368
+verdadero. Frotarlo calienta la piel y
+
+16
+00:00:35,368 --> 00:00:37,676
+la salida se evapora más rápido.
+
+17
+00:00:37,843 --> 00:00:38,925
+Dos: B,
+
+18
+00:00:38,925 --> 00:00:40,812
+falso. El calor y la humedad
+
+19
+00:00:40,812 --> 00:00:41,814
+lo dañan.
+
+20
+00:00:42,003 --> 00:00:43,253
+Tres: A,
+
+21
+00:00:43,253 --> 00:00:45,173
+verdadero. El Eau de Parfum es
+
+22
+00:00:45,173 --> 00:00:46,621
+más concentrado.

@@ -26,7 +26,7 @@ def load():
     t = LEAD
     for s in vo:
         s["vo_start"] = t
-        t += s["dur"] + GAP
+        t += s["dur"] + GAP + s.get("pause", 0.0)
     for i, s in enumerate(vo):
         s["start"] = 0.0 if i == 0 else s["vo_start"] - PRE
     total = vo[-1]["vo_start"] + vo[-1]["dur"] + TAIL

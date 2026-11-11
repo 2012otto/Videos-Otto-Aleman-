@@ -1,0 +1,25 @@
+{
+ "voice": "en-US-AndrewMultilingualNeural",
+ "rate": "+12%",
+ "pitch": "+0Hz",
+ "pauses": [
+  0,
+  3.1,
+  3.1,
+  3.1,
+  0,
+  0,
+  0,
+  0
+ ],
+ "scenes": [
+  "¿Cuánto sabes de perfumes? A es verdadero, B es falso.",
+  "Uno: ¿Es malo frotarte las muñecas después de echarte perfume?",
+  "Dos: ¿El baño es el mejor lugar para guardar tu perfume?",
+  "Tres: ¿Un Eau de Parfum es más concentrado que un Eau de Toilette?",
+  "Comenta tus respuestas, como AAB o BAB, y te damos un 10% de descuento. Las respuestas:",
+  "Uno: A, verdadero. Frotarlo calienta la piel y la salida se evapora más rápido.",
+  "Dos: B, falso. El calor y la humedad lo dañan.",
+  "Tres: A, verdadero. El Eau de Parfum es más concentrado."
+ ]
+}

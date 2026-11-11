@@ -24,6 +24,7 @@ SCENES = [
     "Tu perfume favorito, en tamaño pequeño. Escribinos y encontrá el tuyo.",
 ]
 
+PAUSES = []
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.environ.get("VIDEO_BUILD", os.path.join(ROOT, "build"))
 
@@ -35,6 +36,7 @@ if os.environ.get("VIDEO_SCRIPT"):
     RATE = _cfg.get("rate", RATE)
     PITCH = _cfg.get("pitch", PITCH)
     SCENES = _cfg["scenes"]
+    PAUSES = _cfg.get("pauses", [])
 
 
 async def synth(i, text):
@@ -70,6 +72,9 @@ async def main():
                 if intento == 4:
                     raise
                 await asyncio.sleep(2 + 2 * intento)
+    for i, r in enumerate(out):  # silencio extra después de una escena (p. ej. cuenta regresiva)
+        if i < len(PAUSES) and PAUSES[i]:
+            r["pause"] = PAUSES[i]
     with open(os.path.join(BUILD, "voice.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     for s in out:
