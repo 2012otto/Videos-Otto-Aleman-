@@ -369,7 +369,8 @@ def scene4(c, k):  # el último deseo: suspenso
     camera(c, lerp(1.0, 1.7, zoom), lerp(540, 810, zoom), lerp(960, 1100, zoom), k.t)
     desert_night(c, k.t)
     palace(c, 760, 1150, 0.7, 1.0)
-    genie(c, 330, 1260, 0.75, k.t, expr="surprised" if lt > T(8) else "happy", pose="cross")
+    genie(c, 330, 1260, 0.75, k.t, expr="surprised" if lt > T(8) else "happy", pose="cross",
+          appear=clamp(1 - zoom * 2.5))
     draw_kid(c, 780, 1600, 0.8, k.t, "neutral", look=(-0.4, -0.2), style=MERCADER,
              hands={"R": (40, -460), "L": (-110, -220)})
     O4.doc_caption(c, "DESEO 3 · ???", prog(lt, 0.3, 1.2))
