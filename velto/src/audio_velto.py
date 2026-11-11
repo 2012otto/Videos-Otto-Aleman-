@@ -179,7 +179,8 @@ def main():
         place(sfx, A.pop(), w(6, 2) - 0.2 + (0 if j == 0 else w(6, 5) - w(6, 2) + (j - 1) * 0.22), db(-24))
     place(sfx, A.shimmer(1.6, n=50, seed=8, lo=2000, hi=7000), st(7) + 0.1, db(-12))
     place(sfx, A.pop(), w(7, 6) - 0.15, db(-20))
-    place(sfx, A.pop(), w(7, 8) - 0.15, db(-20))
+    place(sfx, A.shimmer(0.9, n=25, seed=12), w(7, 7), db(-17))
+    place(sfx, A.pop(), w(7, 11) - 0.15, db(-20))
     sfx = reverb(sfx, 1.4, 0.2, seed=9)
 
     bed = mus + sfx

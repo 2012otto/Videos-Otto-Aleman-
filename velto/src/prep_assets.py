@@ -14,7 +14,9 @@ fg = lab == (np.argmax(sizes) + 1)
 fg = ndimage.binary_fill_holes(fg)
 fg = ndimage.binary_opening(fg, structure=ndimage.generate_binary_structure(2, 1), iterations=12)
 fg = ndimage.binary_erosion(fg, iterations=2)  # quita el borde con ruido de color
-a = np.asarray(Image.fromarray((fg * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.2)))
+# contorno liso: se difumina la máscara y se vuelve a cortar a la mitad (elimina bultos del borde)
+sm = ndimage.gaussian_filter(fg.astype(float), 6) > 0.5
+a = np.asarray(Image.fromarray((sm * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1.6)))
 ys, xs = np.where(fg)
 rgba = np.dstack([im.astype(np.uint8), a])[ys.min() - 4:ys.max() + 4, xs.min() - 4:xs.max() + 4]
 Image.fromarray(rgba).save(A + "v_logo.png")

@@ -14,6 +14,7 @@ TAIL = 1.60   # cierre después de la última frase
 PRE = 0.20    # la escena visual empieza un poco antes que su voz
 
 PUNCT = ".,:;?!…"
+DISPLAY = {"cincuenta": "50"}  # cómo se escribe en subtítulos lo que la voz dice en palabras
 
 
 def load():
@@ -36,6 +37,7 @@ def load():
         ws = s["words"]
         if len(toks) != len(ws):
             toks = [w["w"] for w in ws]
+        toks = [DISPLAY.get(tok, tok) for tok in toks]
         s["tokens"] = [{"w": tok, "s": s["vo_start"] + w["s"], "e": s["vo_start"] + w["e"]}
                        for tok, w in zip(toks, ws)]
     return vo, total

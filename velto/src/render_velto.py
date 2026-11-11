@@ -125,6 +125,65 @@ def wordmark(c, x, y, size, a=1.0, slogan=True):
         c.drawPath(sw, P(VIO, "stroke", size * 0.07, shader=lin(x - tw * .3, 0, x + tw * .4, 0, [VIO, LIME]), alpha=a))
 
 
+def sparkle(c, x, y, r, a=1.0):
+    """Destello de 4 puntas."""
+    if a <= 0.01:
+        return
+    st = skia.Path()
+    for i in range(8):
+        ang = -math.pi / 2 + i * math.pi / 4
+        rr = r if i % 2 == 0 else r * 0.18
+        (st.moveTo if i == 0 else st.lineTo)(x + math.cos(ang) * rr, y + math.sin(ang) * rr)
+    st.close()
+    glow(c, R.RES.glow_white, x, y, r * 1.3, 0.6 * a)
+    c.drawPath(st, P("#ffffff", alpha=a))
+
+
+def full_logo(c, x, y, s, t=0.0, v_a=1.0, txt_a=1.0, txt_dx=0.0, glow_a=1.0, v_pos=None):
+    """Logo Velto completo (V + VELTO® + eslogan + onda), rehecho en vectores. Ancho ~2050*s, centro (x, y)."""
+    vx, vy, vh = (x - 640 * s, y - 5 * s, 500 * s) if v_pos is None else v_pos
+    if v_a > 0:
+        v_logo(c, vx, vy, vh, a=v_a, glow_a=glow_a)
+        tw1 = 0.5 + 0.5 * math.sin(t * 3.1)
+        tw2 = 0.5 + 0.5 * math.sin(t * 2.3 + 2)
+        sparkle(c, vx - vh * 0.52, vy - vh * 0.44, vh * 0.13 * (0.6 + 0.4 * tw1), v_a * tw1)
+        sparkle(c, vx + vh * 0.55, vy - vh * 0.46, vh * 0.10 * (0.6 + 0.4 * tw2), v_a * tw2)
+    if txt_a <= 0:
+        return
+    c.save()
+    c.translate(x + txt_dx, y)
+    c.scale(s, s)
+    f = F(R.RES.mx, 320)
+    tw = f.measureText("VELTO")
+    c.save()
+    c.translate(-300, 95)
+    c.scale(1180 / tw, 1.0)
+    c.drawString("VELTO", 0, 0, f, P("#ffffff", alpha=txt_a))
+    c.restore()
+    fr = F(R.RES.mb, 70)
+    oval(c, 925, -150, 34, 34, P("#ffffff", "stroke", 6, alpha=txt_a))
+    text_center(c, "R", 925, -128, fr if False else F(R.RES.mb, 46), P("#ffffff", alpha=txt_a))
+    fs = F(R.RES.ms, 96)
+    parts = [("Tu negocio, ", "#ffffff"), ("en", "#b46bff"), (" versión digital.", "#ffffff")]
+    total = sum(fs.measureText(p) for p, _ in parts)
+    c.save()
+    c.translate(-330, 225)
+    c.scale(1240 / total, 1.0)
+    xx = 0
+    for txt, col in parts:
+        c.drawString(txt, xx, 0, fs, P(col, alpha=txt_a))
+        xx += fs.measureText(txt)
+    c.restore()
+    sw = skia.Path()
+    sw.moveTo(-20, 300)
+    sw.cubicTo(180, 250, 420, 238, 640, 262)
+    sw.cubicTo(420, 278, 180, 285, -20, 300)
+    sw.close()
+    c.drawPath(sw, P(VIO, shader=lin(-20, 0, 640, 0, [VIO, "#c84dff", LIME]), alpha=txt_a))
+    c.drawPath(sw, P(VIO, "stroke", 9, shader=lin(-20, 0, 640, 0, [VIO, "#c84dff", LIME]), alpha=txt_a))
+    c.restore()
+
+
 def glass_card(c, x, y, w, h, k=1.0, r=36):
     if k <= 0:
         return
@@ -668,9 +727,12 @@ def scene4(c, k):  # aparece Velto
         p = meas.getPosTan(u * L)[0]
         glow(c, R.RES.glow_white, p.x(), p.y(), 70, 0.9 * (1 - light))
         glow(c, R.RES.g_lime if u > 0.5 else R.RES.g_vio, p.x(), p.y(), 180, 0.7 * (1 - light))
-    lg = back_out(prog(lt, 0.55, 1.05), 1.4)
+    lg = back_out(prog(lt, 0.55, 1.0), 1.4)
+    m = ease_in_out(prog(lt, 1.05, 1.6))
     if lg > 0:
-        v_logo(c, 540, 860, 420 * lg, glow_a=1.2)
+        s = 0.47
+        vpos = (lerp(540, 540 - 640 * s, m), lerp(860, 860 - 5 * s, m), lerp(420 * lg, 500 * s, m))
+        full_logo(c, 540, 860, s, k.t, v_a=1, txt_a=m, txt_dx=120 * (1 - m), glow_a=1.2, v_pos=vpos)
     use("lime")
     R.burst(c, 540, 860, lt - 0.6, dur=1.3, n=60, radius=520, seed=5)
     use("vio")
@@ -847,20 +909,31 @@ def scene8(c, k):  # cierre con logo y llamado a la acción
     neon_bg(c, k.t, grid=0.12, wy=1640)
     use("vio")
     R.dust(c, k.t, n=40, seed=31, alpha=0.6)
-    lg = back_out(prog(lt, 0.1, 0.8), 1.4)
+    lg = back_out(prog(lt, 0.1, 0.7), 1.4)
+    ta = ease_out(prog(lt, 0.5, 1.1))
+    s = 0.47
     if lg > 0:
-        v_logo(c, 540, 760, 380 * lg, glow_a=1.0 + 0.2 * math.sin(k.t * 3))
+        full_logo(c, 540, 860, s, k.t, v_a=1, txt_a=ta, txt_dx=100 * (1 - ta),
+                  v_pos=(540 - 640 * s, 860 - 5 * s, 500 * s * lg), glow_a=1.0 + 0.2 * math.sin(k.t * 3))
     use("lime")
-    R.burst(c, 540, 760, lt - 0.15, dur=1.3, n=60, radius=480, seed=81)
-    ta = ease_out(prog(lt, 0.6, 1.2))
-    c.save()
-    c.translate(0, 30 * (1 - ta))
-    wordmark(c, 540, 1100, 132, a=ta)
-    c.restore()
+    R.burst(c, 540 - 640 * s, 860, lt - 0.15, dur=1.3, n=60, radius=420, seed=81)
     T = k.w
-    pill(c, 540, 1300, "¡Empieza gratis!", prog(lt, T(6) - 0.15, T(6) + 0.3), size=44, bg="#14061f", fg=LIME,
-         border=LIME)
-    pill(c, 540, 1430, "Escríbenos y crea tu catálogo", prog(lt, T(8) - 0.15, T(8) + 0.3), size=40,
+    # "Hasta 50 clientes completamente gratis"
+    gk = prog(lt, T(6) - 0.15, T(6) + 0.35)
+    if gk > 0:
+        sc = back_out(gk)
+        c.save()
+        c.translate(540, 1180)
+        c.scale(sc, sc)
+        glow(c, R.RES.g_lime, 0, 0, 420, 0.4)
+        rrect(c, -400, -95, 400, 95, 40, P("#14061f", alpha=0.92))
+        rrect(c, -400, -95, 400, 95, 40, P(LIME, "stroke", 4))
+        text_center(c, "Hasta", -250, -10, F(R.RES.mb, 40), P("#ffffff"))
+        text_center(c, "50", -105, 42, F(R.RES.mx, 120), P(LIME))
+        c.drawString("clientes", 10, -14, F(R.RES.mx, 50), P("#ffffff"))
+        c.drawString("100% GRATIS", 10, 48, F(R.RES.mx, 50), P(LIME))
+        c.restore()
+    pill(c, 540, 1395, "Escríbenos y crea tu catálogo", prog(lt, T(11) - 0.15, T(11) + 0.3), size=40,
          tf=R.RES.mxi, arrow=True)
 
 

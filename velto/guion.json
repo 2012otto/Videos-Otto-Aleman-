@@ -1,6 +1,6 @@
 {
- "voice": "es-MX-DaliaNeural",
- "rate": "+6%",
+ "voice": "en-US-AvaMultilingualNeural",
+ "rate": "+4%",
  "pitch": "+0Hz",
  "scenes": [
   "Esta es Ana. Vende joyería hecha a mano... pero sus mensajes son un caos.",
@@ -10,6 +10,6 @@
   "Ahí crea su catálogo en minutos: sube su logo, sus productos, precios y descripción. Sin programar nada.",
   "Sus clientes ven todo en un solo enlace... y le hacen su pedido directo por mensaje.",
   "Emprendedores de Guatemala y de otros países ya lo están usando.",
-  "Velto: tu negocio, en versión digital. ¡Empieza gratis! Escríbenos y crea tu catálogo."
+  "Velto: tu negocio, en versión digital. ¡Hasta cincuenta clientes completamente gratis! Escríbenos y crea tu catálogo."
  ]
 }
