@@ -437,17 +437,34 @@ def scene6(c, k):  # el giro: balanza
                 jy = pan_y - 30 - (j // 7) * 40
                 oval(c, jx, jy, 16, 11, P("#ffffff", alpha=0.85))
                 oval(c, jx + 2 * math.sin(k.t * 2 + j), jy, 6, 6, P("#14061f"))
-            lab = [("10 mil", "#e9d6ff"), ("solo miran", "#c9b8e8")]
+            top_txt, top_col = "10 MIL", "#ffffff"
         else:  # 300 que compran: bolsitas
             for j in range(4):
                 jx = ex - 85 + j * 56
-                rrect(c, jx - 20, pan_y - 60, jx + 20, pan_y - 10, 6, P("#14061f"))
-                c.drawPath(skia.Path().addArc(RECT(jx - 11, pan_y - 78, jx + 11, pan_y - 50), 180, 180),
-                           P(LIME, "stroke", 4))
-            lab = [("300", LIME), ("te compran", "#ffffff")]
-        for li, (txt, col) in enumerate(lab):
-            text_center(c, txt, ex, pan_y + 90 + li * 50, F(R.RES.mx, 54 if li == 0 else 34), P(col))
-    gt = prog(lt, T(6), T(6) + 0.3)
+                bag = skia.Path()
+                bag.moveTo(jx - 18, pan_y - 58)
+                bag.lineTo(jx + 18, pan_y - 58)
+                bag.lineTo(jx + 23, pan_y - 10)
+                bag.lineTo(jx - 23, pan_y - 10)
+                bag.close()
+                c.drawPath(bag, P("#ffffff"))
+                c.drawPath(bag, P(VIO, "stroke", 3))
+                c.drawPath(skia.Path().addArc(RECT(jx - 10, pan_y - 74, jx + 10, pan_y - 46), 180, 180),
+                           P(VIO, "stroke", 4))
+            top_txt, top_col = "300", LIME
+        lx = clamp(ex, 190, W - 190)  # las etiquetas no se salen de la pantalla
+        # número arriba de la balanza
+        text_center(c, top_txt, lx, ey - 40, F(R.RES.mx, 78), P(top_col))
+        # etiqueta abajo
+        if side == 0:
+            text_center(c, "solo miran", lx, pan_y + 100, F(R.RES.mx, 44), P("#c9b8e8"))
+        else:
+            f = F(R.RES.mx, 50)
+            tw = f.measureText("COMPRAN")
+            glow(c, R.RES.g_lime, lx, pan_y + 84, tw * 0.9, 0.55)
+            rrect(c, lx - tw / 2 - 28, pan_y + 46, lx + tw / 2 + 28, pan_y + 122, 38, P(LIME))
+            text_center(c, "COMPRAN", lx, pan_y + 102, f, P("#14061f"))
+    gt = 0
     if gt > 0:
         s = back_out(gt, 2.4)
         c.save()
