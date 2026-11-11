@@ -41,6 +41,9 @@ class VeltoRes(R.Res):
         arr = np.asarray(Image.open(os.path.join(VA, "v_logo.png")).convert("RGBA")).copy()
         self.vlogo = skia.Image.fromarray(arr, colorType=skia.kRGBA_8888_ColorType,
                                           alphaType=skia.kUnpremul_AlphaType).withDefaultMipmaps()
+        arr2 = np.asarray(Image.open(os.path.join(VA, "logo_cliente.png")).convert("RGBA")).copy()
+        self.logo_cliente = skia.Image.fromarray(arr2, colorType=skia.kRGBA_8888_ColorType,
+                                                 alphaType=skia.kUnpremul_AlphaType).withDefaultMipmaps()
         self.g_vio = R.sprite(170, 80, 255, power=1.8)
         self.g_lime = R.sprite(190, 255, 40, power=1.8)
         self.g_mag = R.sprite(220, 90, 255, power=1.4)
@@ -182,6 +185,13 @@ def full_logo(c, x, y, s, t=0.0, v_a=1.0, txt_a=1.0, txt_dx=0.0, glow_a=1.0, v_p
     c.drawPath(sw, P(VIO, shader=lin(-20, 0, 640, 0, [VIO, "#c84dff", LIME]), alpha=txt_a))
     c.drawPath(sw, P(VIO, "stroke", 9, shader=lin(-20, 0, 640, 0, [VIO, "#c84dff", LIME]), alpha=txt_a))
     c.restore()
+
+
+def client_logo(c, x, y, width, a=1.0):
+    """Logo original del cliente, tal cual (sin efectos)."""
+    img = R.RES.logo_cliente
+    h = width * img.height() / img.width()
+    draw_img(c, img, x, y, h, 0.0, a)
 
 
 def glass_card(c, x, y, w, h, k=1.0, r=36):
@@ -727,16 +737,9 @@ def scene4(c, k):  # aparece Velto
         p = meas.getPosTan(u * L)[0]
         glow(c, R.RES.glow_white, p.x(), p.y(), 70, 0.9 * (1 - light))
         glow(c, R.RES.g_lime if u > 0.5 else R.RES.g_vio, p.x(), p.y(), 180, 0.7 * (1 - light))
-    lg = back_out(prog(lt, 0.55, 1.0), 1.4)
-    m = ease_in_out(prog(lt, 1.05, 1.6))
+    lg = ease_out(prog(lt, 0.55, 1.0))
     if lg > 0:
-        s = 0.47
-        vpos = (lerp(540, 540 - 640 * s, m), lerp(860, 860 - 5 * s, m), lerp(420 * lg, 500 * s, m))
-        full_logo(c, 540, 860, s, k.t, v_a=1, txt_a=m, txt_dx=120 * (1 - m), glow_a=1.2, v_pos=vpos)
-    use("lime")
-    R.burst(c, 540, 860, lt - 0.6, dur=1.3, n=60, radius=520, seed=5)
-    use("vio")
-    R.burst(c, 540, 860, lt - 0.62, dur=1.3, n=50, radius=420, seed=6)
+        client_logo(c, 540, 860, 980 * (0.9 + 0.1 * lg), a=lg)
     draw_kid(c, 210, 1530, 0.78, k.t, "surprised", look=(1, -0.6), tilt=6, style=ANA,
              hands={"L": (-150, -470), "R": (150, -480)}, bob=-8 * abs(math.sin(lt * 5)) * (lt > 0.6))
 
@@ -909,14 +912,9 @@ def scene8(c, k):  # cierre con logo y llamado a la acción
     neon_bg(c, k.t, grid=0.12, wy=1640)
     use("vio")
     R.dust(c, k.t, n=40, seed=31, alpha=0.6)
-    lg = back_out(prog(lt, 0.1, 0.7), 1.4)
-    ta = ease_out(prog(lt, 0.5, 1.1))
-    s = 0.47
+    lg = ease_out(prog(lt, 0.1, 0.6))
     if lg > 0:
-        full_logo(c, 540, 860, s, k.t, v_a=1, txt_a=ta, txt_dx=100 * (1 - ta),
-                  v_pos=(540 - 640 * s, 860 - 5 * s, 500 * s * lg), glow_a=1.0 + 0.2 * math.sin(k.t * 3))
-    use("lime")
-    R.burst(c, 540 - 640 * s, 860, lt - 0.15, dur=1.3, n=60, radius=420, seed=81)
+        client_logo(c, 540, 860, 980 * (0.9 + 0.1 * lg), a=lg)
     T = k.w
     # "Hasta 50 clientes completamente gratis"
     gk = prog(lt, T(6) - 0.15, T(6) + 0.35)
