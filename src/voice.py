@@ -57,7 +57,16 @@ async def synth(i, text):
 
 async def main():
     os.makedirs(BUILD, exist_ok=True)
-    out = [await synth(i, t) for i, t in enumerate(SCENES)]
+    out = []
+    for i, t in enumerate(SCENES):
+        for intento in range(5):  # el servicio a veces no devuelve audio: reintentar
+            try:
+                out.append(await synth(i, t))
+                break
+            except edge_tts.exceptions.NoAudioReceived:
+                if intento == 4:
+                    raise
+                await asyncio.sleep(2 + 2 * intento)
     with open(os.path.join(BUILD, "voice.json"), "w") as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
     for s in out:
