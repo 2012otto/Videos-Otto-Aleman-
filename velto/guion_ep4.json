@@ -1,0 +1,15 @@
+{
+ "voice": "en-US-AvaMultilingualNeural",
+ "rate": "+6%",
+ "pitch": "+0Hz",
+ "scenes": [
+  "¿Quieres tu tienda digital en menos de cinco minutos? Te enseño cómo con Velto.",
+  "Paso uno: entra a Velto y toca crear mi tienda gratis.",
+  "Paso dos: sube tu logo, ponle nombre a tu negocio... y elige tus colores. Mira cómo cambia todo al instante.",
+  "Paso tres: agrega tus productos con foto, precio, tallas y stock. Todos los que quieras.",
+  "Paso cuatro: cuando te llegue un pedido, actualiza el estado: recibido, en camino, entregado. Y contacta a tu cliente con un toque.",
+  "Y en tu resumen ves tus ventas y pedidos nuevos en tiempo real.",
+  "Paso cinco: toca publicar tienda... ¡y listo! Tu negocio ya está en línea.",
+  "Comenta TIENDA y te creamos tu tienda sin que tengas que hacer nada, 100% gratis."
+ ]
+}
