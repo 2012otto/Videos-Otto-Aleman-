@@ -1,0 +1,15 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.4, "similarity_boost": 0.8, "style": 0.4, "speed": 1.05},
+ "say": {"13": "trece", "Blanqui's": "Blanquis"},
+ "scenes": [
+  "En Puerto Barrios, donde el calor se disfruta mejor con algo delicioso…",
+  "Descubre nuestros deliciosos chocobananos, clásicos o con tus toppings favoritos.",
+  "Y si te encantan las frutas, prueba nuestras irresistibles chocofrutas.",
+  "Porque los mejores momentos se disfrutan en familia, con algo dulce y refrescante.",
+  "¿Y para refrescarte? ¡Nuestros deliciosos topogigios! Mango, fresa con leche, coco, maracuyá, nance, tamarindo y manía. ¡Elige tu favorito!",
+  "Personaliza tus chocobananos y chocofrutas con manía, coco rallado o chispas de chocolate.",
+  "Visítanos en Colonia El Progreso, Calle 13 de Mayo, Puerto Barrios, Izabal. ¡Chocobananos Blanqui's, el sabor de tus mejores momentos!"
+ ]
+}
