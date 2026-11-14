@@ -1,0 +1,16 @@
+{
+ "eleven_voice": "dlGxemPxFMTY7iXagmOj",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.45, "similarity_boost": 0.8, "style": 0.25},
+ "say": {"STUDIO": "Studio"},
+ "scenes": [
+  "Este es Diego. Cada mes paga publicidad... y cada mes pasa lo mismo.",
+  "Miles de vistas... y cero ventas. ¿Por qué pagar para que miles vean un video que no funciona?",
+  "Es como llenar un balde con un hoyo abajo. Mes tras mes.",
+  "Hasta que conoció Velto.",
+  "Primero, puso su catálogo en línea: productos, precios y pedidos en un solo lugar.",
+  "Y lo más importante: Velto Studio. Nuestro equipo analiza lo que está en tendencia ahora mismo en Instagram y TikTok...",
+  "Y te crea videos e imágenes publicitarias basados en lo que funciona hoy.",
+  "Deja de llenar baldes rotos. Comenta STUDIO y te contamos cómo funciona."
+ ]
+}
