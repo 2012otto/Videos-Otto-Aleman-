@@ -2,7 +2,7 @@
  "eleven_voice": "qRUgOhnxGASxirG4fKjv",
  "model": "eleven_multilingual_v2",
  "settings": {"stability": 0.4, "similarity_boost": 0.8, "style": 0.4, "speed": 1.05},
- "say": {"13": "trece", "Blanqui's": "Blanquis"},
+ "say": {"13": "trece", "Blanqui's": "Blanquis", "topogigios": "topoyíos"},
  "scenes": [
   "En Puerto Barrios, donde el calor se disfruta mejor con algo delicioso…",
   "Descubre nuestros deliciosos chocobananos, clásicos o con tus toppings favoritos.",

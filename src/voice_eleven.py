@@ -80,7 +80,13 @@ def synth(i, text):
 
 def main():
     os.makedirs(BUILD, exist_ok=True)
-    out = [synth(i, t) for i, t in enumerate(CFG["scenes"])]
+    only = os.environ.get("VO_ONLY")  # regenerar solo algunas escenas, p. ej. VO_ONLY=4
+    if only:
+        out = json.load(open(os.path.join(BUILD, "voice.json")))
+        for i in map(int, only.split(",")):
+            out[i] = synth(i, CFG["scenes"][i])
+    else:
+        out = [synth(i, t) for i, t in enumerate(CFG["scenes"])]
     for i, r in enumerate(out):
         p = CFG.get("pauses", [])
         if i < len(p) and p[i]:
