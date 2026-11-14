@@ -4,7 +4,7 @@ Todo animado en vector: productos dibujados a partir de las fotos del cliente, f
 desenfocados, cámara en movimiento, selector de sabores de topogigios. Colores de marca:
 borgoña #800020 y amarillo dorado #F5A623. Sin @ de Velto.
 Uso:
-  VIDEO_BUILD=$PWD/blanquis/build VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=2.5 \
+  VIDEO_BUILD=$PWD/blanquis/build VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=1.5 \
     python3 blanquis/src/render_blanquis.py --out blanquis/build/video_mudo.mp4
 """
 import math
@@ -44,6 +44,13 @@ class BRes(R.Res):
         self.g_gold = R.sprite(245, 166, 35, power=1.6)
         self.g_bord = R.sprite(128, 0, 32, power=1.6)
         self.cloud = R.sprite(255, 255, 255, n=96, power=1.25)
+        va = os.path.join(REPO, "velto", "assets")  # para el anuncio final de Velto Studio
+        for name, fn in (("vlogo", "v_logo.png"), ("logo_cliente", "logo_cliente.png")):
+            a2 = np.asarray(Image.open(os.path.join(va, fn)).convert("RGBA")).copy()
+            setattr(self, name, skia.Image.fromarray(a2, colorType=skia.kRGBA_8888_ColorType,
+                                                     alphaType=skia.kUnpremul_AlphaType).withDefaultMipmaps())
+        self.g_vio = R.sprite(170, 80, 255, power=1.8)
+        self.g_lime = R.sprite(190, 255, 40, power=1.8)
 
 
 def blur_layer(c, sigma):
@@ -1061,7 +1068,63 @@ def scene7(c, k):  # cierre al atardecer: productos, logo y dirección
     sparkles(c, k.t, n=24, seed=10, a=0.8)
 
 
-SCENES = [scene1, scene2, scene3, scene4, scene5, scene6, scene7]
+def scene8(c, k):  # anuncio de Velto Studio sobre el mismo atardecer
+    import render_velto as V
+    lt, T = k.lt, k.w
+    blur_layer(c, 9)
+    sunset_bg(c, k.t)
+    c.restore()
+    c.drawRect(RECT(0, 0, W, H), P("#0a0410", alpha=0.45))
+    R.draw_img(c, R.RES.vlogo, 110, 150, 80)
+    ph = ease_out(prog(lt, 0.0, 0.5))
+    fy = 1000 + 14 * math.sin(k.t * 1.8) + 900 * (1 - ph)
+
+    def screen(c2, x0, y0, x1, y1):
+        c2.drawRect(RECT(x0, y0, x1, y1), P("#ff8a4a", shader=lin(0, y0, 0, y1, ["#ffcf7a", "#ff8a4a", "#c8406a", "#5a1430"])))
+        oval(c2, (x0 + x1) / 2, y0 + 250, 80, 80, P("#ffe9b0", alpha=0.9))
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        pulse = 1 + 0.07 * math.sin(k.t * 5)
+        oval(c2, cx, cy, 85 * pulse, 85 * pulse, P("#ffffff", alpha=0.95))
+        tri = skia.Path()
+        tri.moveTo(cx - 24, cy - 38)
+        tri.lineTo(cx + 42, cy)
+        tri.lineTo(cx - 24, cy + 38)
+        tri.close()
+        c2.drawPath(tri, P(V.VIO))
+        prg = (k.t * 0.3) % 1
+        rrect(c2, x0 + 30, y1 - 60, x1 - 30, y1 - 50, 5, P("#ffffff", alpha=0.3))
+        rrect(c2, x0 + 30, y1 - 60, lerp(x0 + 30, x1 - 30, prg), y1 - 50, 5, P(V.LIME))
+    if ph > 0:
+        V.phone(c, 540, fy, 420, 820, screen, rot=-5 + 2 * math.sin(k.t * 1.3), glow_a=0.9 * ph)
+    pk = prog(lt, T(17) - 0.15, T(17) + 0.15)
+    if pk > 0:
+        sc = back_out(pk, 2.2)
+        c.save()
+        c.translate(770, fy - 300)
+        c.rotate(14)
+        c.scale(sc, sc)
+        c.drawLine(-90, -20, -160, -70, P("#e9e4f0", "stroke", 4))
+        tg = skia.Path()
+        tg.moveTo(-110, 0)
+        tg.lineTo(-70, -60)
+        tg.lineTo(110, -60)
+        tg.lineTo(110, 60)
+        tg.lineTo(-70, 60)
+        tg.close()
+        glow(c, R.RES.g_lime, 0, 0, 220, 0.6)
+        c.drawPath(tg, P(V.LIME))
+        oval(c, -76, 0, 10, 10, P("#000000"))
+        text_center(c, "$5", 20, 34, F(R.RES.mx, 96), P("#14061f"))
+        c.restore()
+        R.RES.glow_gold, R.RES.glow_warm = R.RES.g_lime, R.RES.g_lime
+        R.burst(c, 770, fy - 300, lt - T(17) + 0.1, dur=0.9, n=36, radius=300, seed=6, intensity=0.8)
+        R.RES.glow_warm = R.RES.g_gold
+    lk = ease_out(prog(lt, T(8) - 0.2, T(8) + 0.2))
+    if lk > 0:
+        V.client_logo(c, 540, 1590, 560, a=lk)
+
+
+SCENES = [scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8]
 WHIP = {1, 2, 4, 5}
 
 
@@ -1078,6 +1141,9 @@ def render_frame(c, t, vo, phr, total):
         blur, dx = 60 * qq, 240 * qq
     if si == 3 and lt < 0.2:
         blur = 14 * (1 - lt / 0.2)
+    if si == 7 and lt < 0.4:  # se quita todo: queda solo el atardecer
+        SCENES[6](c, R.Ctx(vo, 6, t))
+        c.saveLayerAlpha(None, int(255 * smooth(lt / 0.4)))
     if si == 6 and lt < 0.45:  # fundido hacia el atardecer
         R.SCENES = SCENES
         SCENES[5](c, R.Ctx(vo, 5, t))
@@ -1090,7 +1156,7 @@ def render_frame(c, t, vo, phr, total):
     c.restore()
     if blur > 0.3:
         c.restore()
-    if si == 6 and lt < 0.45:
+    if si in (6, 7) and lt < (0.45 if si == 6 else 0.4):
         c.restore()
     # transición: una chocosandía pasa frente a la cámara (escena 3 -> 4)
     if len(vo) > 3:

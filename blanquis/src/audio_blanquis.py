@@ -1,7 +1,7 @@
 """Audio Chocobananos Blanqui's: música tropical instrumental suave (marimba + guitarra + shaker, original),
 olas en la playa, efectos de gotas/pops/selector y la voz.
 
-Uso: VIDEO_BUILD=$PWD/blanquis/build VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=2.5 python3 blanquis/src/audio_blanquis.py
+Uso: VIDEO_BUILD=$PWD/blanquis/build VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=1.5 python3 blanquis/src/audio_blanquis.py
 """
 import os
 import subprocess
@@ -118,6 +118,10 @@ def main():
         place(sfx, plop(), st(6) + 0.4 + j * 0.15, db(-20))
     place(sfx, AV.ding(), st(6) + 0.6, db(-17))
     place(sfx, A.shimmer(1.4, seed=80), w(6, 12), db(-15))
+    if len(vo) > 7:  # anuncio de Velto Studio
+        place(sfx, A.whoosh(0.6, seed=90), st(7) + 0.05, db(-15))
+        place(sfx, AV.ding(), w(7, 17) - 0.05, db(-12))
+        place(sfx, A.shimmer(0.9, n=30, seed=91, lo=2000, hi=7000), w(7, 17), db(-14))
     sfx = A.reverb(sfx, 1.0, 0.15, seed=9)
 
     bed = mus + sfx

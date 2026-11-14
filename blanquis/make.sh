@@ -2,7 +2,7 @@
 # Chocobananos Blanqui's — anuncio animado. Voz: ElevenLabs "David - Energetic" (la del video GTA 6).
 set -e
 cd "$(dirname "$0")/.."
-export VIDEO_BUILD="$PWD/blanquis/build" VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=2.5
+export VIDEO_BUILD="$PWD/blanquis/build" VO_TRIM=0.2 VO_GAP=0.4 VO_TAIL=1.5
 [ -f blanquis/build/voice.json ] || VIDEO_SCRIPT=blanquis/guion.json python3 src/voice_eleven.py
 python3 blanquis/src/audio_blanquis.py
 python3 blanquis/src/render_blanquis.py --out blanquis/build/video_mudo.mp4
