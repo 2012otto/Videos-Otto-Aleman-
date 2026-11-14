@@ -18,10 +18,23 @@ CFG = json.load(open(os.environ["VIDEO_SCRIPT"]))
 API = "https://api.elevenlabs.io/v1/text-to-speech/{}/with-timestamps?output_format=mp3_44100_128"
 
 
+PUNCT = ".,:;?!¿¡…"
+
+
+def spoken_tokens(text):
+    """Cada palabra del texto (como se escribe en subtítulos) -> cómo se pronuncia. Devuelve (texto hablado, n_palabras)."""
+    out, counts = [], []
+    for tok in text.split():
+        core = tok.strip(PUNCT)
+        rep = CFG.get("say", {}).get(core)
+        sp = tok.replace(core, rep) if rep else tok
+        out.append(sp)
+        counts.append(len(sp.split()))
+    return " ".join(out), counts
+
+
 def synth(i, text):
-    say = text
-    for k, v in CFG.get("say", {}).items():  # cómo se pronuncia vs. cómo se escribe en subtítulos
-        say = say.replace(k, v)
+    say, counts = spoken_tokens(text)
     body = json.dumps({"text": say, "model_id": CFG.get("model", "eleven_multilingual_v2"),
                        "voice_settings": CFG.get("settings", {"stability": 0.45, "similarity_boost": 0.8, "style": 0.25})})
     for intento in range(4):
@@ -53,6 +66,13 @@ def synth(i, text):
         we = e
     if cur:
         words.append({"w": cur, "s": ws, "e": we})
+    if len(words) == sum(counts):  # agrupar palabras habladas por palabra escrita ("once" -> "11")
+        grouped, k = [], 0
+        for tok, n in zip(text.split(), counts):
+            grp = words[k:k + n]
+            grouped.append({"w": tok, "s": grp[0]["s"], "e": grp[-1]["e"]})
+            k += n
+        words = grouped
     dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
                                          "-of", "csv=p=0", path]))
     return {"text": text, "file": path, "dur": dur, "words": words}

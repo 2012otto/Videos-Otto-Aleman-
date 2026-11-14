@@ -1,0 +1,16 @@
+{
+ "eleven_voice": "IEOADzjH31GowBCZQHUr",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.45, "similarity_boost": 0.85, "style": 0.2},
+ "say": {"1964": "mil novecientos sesenta y cuatro", "17": "diecisiete", "11": "once", "14": "catorce", "$5": "cinco dólares", "VIDEO": "video"},
+ "scenes": [
+  "En 1964, un chico de 17 años estuvo 11 días sin dormir. Y lo que le pasó es impresionante.",
+  "Se llamaba Randy Gardner, y lo hizo para un proyecto escolar de ciencias.",
+  "Al segundo día, ya le costaba enfocar la vista. Al cuarto día... empezó a alucinar: confundió una señal de tránsito con una persona.",
+  "Pero antes de continuar: si tienes una marca y quieres un video como este... te lo hacemos por solo $5",
+  "Para el día 11, hablaba lento, olvidaba lo que estaba diciendo... y su cara casi no mostraba expresión.",
+  "Al final, durmió 14 horas seguidas... y se recuperó.",
+  "Hoy, ese récord ya ni se registra: es demasiado peligroso. Así que no lo intentes.",
+  "Y como te dije: si quieres un video como este para tu marca, comenta VIDEO y te lo hacemos por solo $5"
+ ]
+}
