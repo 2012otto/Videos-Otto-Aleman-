@@ -1,0 +1,32 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {
+  "stability": 0.3,
+  "similarity_boost": 0.8,
+  "style": 0.5,
+  "speed": 1.1
+ },
+ "say": {
+  "GTA": "ge te a",
+  "6": "seis",
+  "11": "once",
+  "5": "cinco",
+  "VENTA": "venta"
+ },
+ "scenes": [
+  "GTA 6 todavía no sale… y ya habría ganado más de mil millones de dólares.",
+  "Según Sensor Tower, son más de 11 millones de copias digitales vendidas antes del lanzamiento.",
+  "Y ya es el juego con más preventas en la historia de la PlayStation Store.",
+  "¿Lo más loco? Nadie hizo fila: la gente compró desde su teléfono, a cualquier hora.",
+  "Tú no eres Rockstar… pero tu negocio también puede vender así.",
+  "Crea tu página en Velto ahora mismo: tu catálogo, tus precios y tus pedidos en un solo lugar.",
+  "Comenta VENTA y te mandamos la guía para crear tu página en 5 minutos."
+ ],
+ "pauses": [
+  0,
+  0,
+  0,
+  0.35
+ ]
+}
