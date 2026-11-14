@@ -9,8 +9,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BUILD = os.environ.get("VIDEO_BUILD", os.path.join(ROOT, "build"))
 
 LEAD = 0.35   # silencio antes de la primera frase
-GAP = 0.30    # pausa entre escenas
-TAIL = 1.60   # cierre después de la última frase
+GAP = float(os.environ.get("VO_GAP", 0.30))    # pausa entre escenas
+TAIL = float(os.environ.get("VO_TAIL", 1.60))   # cierre después de la última frase
 PRE = 0.20    # la escena visual empieza un poco antes que su voz
 
 PUNCT = ".,:;?!…"

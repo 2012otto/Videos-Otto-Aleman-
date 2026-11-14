@@ -1,0 +1,17 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.3, "similarity_boost": 0.8, "style": 0.5, "speed": 1.1},
+ "say": {"GTA": "ge te a", "5": "cinco", "6": "seis", "4": "cuatro", "2": "dos", "170": "ciento setenta", "80": "ochenta", "20": "veinte", "$5": "cinco dólares", "VIDEO": "video"},
+ "scenes": [
+  "Faltan 5 días para GTA 6… y esto casi nadie lo sabe.",
+  "El mapa es casi el doble que GTA 5… y casi tan grande como GTA 4, GTA 5 y Red Dead 2 juntos.",
+  "Tiene más de 170 especies de animales… y algunas son legendarias, tan secretas que Rockstar no las ha mostrado.",
+  "Pausa. ¿Un video así para tu marca? Solo $5.",
+  "Hay huracanes… y cuando pasan, los destrozos se quedan en la ciudad.",
+  "Cada persona es distinta: altura, cuerpo… hasta cómo se reparte la grasa.",
+  "Y sí, es más caro: se reporta a 80 dólares, 20 más que GTA 5.",
+  "Y según analistas, costó entre mil y dos mil millones… lo mismo que el edificio más alto del mundo.",
+  "Comenta VIDEO y te hacemos el tuyo por solo $5."
+ ]
+}
