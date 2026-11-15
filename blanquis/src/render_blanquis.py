@@ -1062,7 +1062,7 @@ def scene7(c, k):  # cierre al atardecer: productos, logo y dirección
         c.drawPath(pin, P(GOLD))
         oval(c, -405, -32 + bob, 12, 12, P(BORD))
         f1, f2 = F(R.RES.mx, 36), F(R.RES.mb, 32)
-        c.drawString("Colonia El Progreso, Calle 13 de Mayo", -345, -14, f1, P("#ffffff"))
+        c.drawString("Colonia El Progreso, Calle 3 de Mayo", -345, -14, f1, P("#ffffff"))
         c.drawString("Puerto Barrios, Izabal, Guatemala", -345, 40, f2, P(GOLD2))
         c.restore()
     sparkles(c, k.t, n=24, seed=10, a=0.8)
