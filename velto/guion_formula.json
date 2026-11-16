@@ -1,0 +1,17 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.3, "similarity_boost": 0.8, "style": 0.5, "speed": 1.1},
+ "say": {"GTA": "ge te a", "6": "seis", "11": "once", "90": "noventa"},
+ "scenes": [
+  "GTA 6 todavía no sale… y ya habría vendido más de 11 millones de copias.",
+  "No fue suerte. Fue una fórmula de tres pasos… y tu negocio la puede copiar.",
+  "Paso uno: un gancho imposible de ignorar. Su primer tráiler hizo más de 90 millones de vistas en un día. Récord mundial.",
+  "Paso dos: ponle fecha. La preventa abrió en junio, con día exacto de lanzamiento… y millones apartaron el suyo.",
+  "Paso tres: un solo botón para comprar. Por eso ya es el juego con más preventas en la historia de PlayStation Store.",
+  "Gancho. Fecha. Botón. Así se convierten vistas en ventas.",
+  "¿Y sabes qué? Este video también es un gancho. Lo hicimos con Velto Studio: tú nos cuentas tu idea, y con la inteligencia artificial de Claude creamos videos animados como este para tu marca, listos para publicar.",
+  "Comenta GTA y te mandamos ejemplos y precios."
+ ],
+ "pauses": [0, 0, 0, 0, 0, 0.3]
+}
