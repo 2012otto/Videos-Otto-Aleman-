@@ -1,0 +1,32 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {
+  "stability": 0.3,
+  "similarity_boost": 0.8,
+  "style": 0.5,
+  "speed": 1.08
+ },
+ "say": {
+  "2016": "dos mil dieciséis",
+  "14": "catorce",
+  "12": "doce",
+  "AccionAndroid": "Acción Android"
+ },
+ "scenes": [
+  "¿Y si Jexs nunca hubiera existido?… Ala gran, mejor ni pensarlo.",
+  "Año 2016. Un patojo de 14 años abre su canal… pero en este universo decide subir solo videos de AccionAndroid.",
+  "Y así hubiera sido su canal…",
+  "Sin Jexs, La Rosa de Guadalupe se hubiera salvado de tanta burla… y no tendrías que verlo a escondidas de tus papás, por sus expresiones tan… bonitas.",
+  "Y el canal más grande de Guatemala sería… un tutorial de cómo hacer atol de elote. Con 12 suscriptores.",
+  "Pero, ¡simón!, sí existió. 14 millones de suscriptores y el canal número uno de Guatemala.",
+  "Gracias, Jexs, por hacernos reír de cosas que no deberían dar risa. Y vos, ¿cuál es tu video favorito de él? Ponelo en los comentarios."
+ ],
+ "pauses": [
+  0,
+  0,
+  3.4,
+  0,
+  0.6
+ ]
+}
