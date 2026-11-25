@@ -2,17 +2,20 @@
  "eleven_voice": "qRUgOhnxGASxirG4fKjv",
  "model": "eleven_multilingual_v2",
  "settings": {
-  "stability": 0.35,
+  "stability": 0.5,
   "similarity_boost": 0.8,
-  "style": 0.45,
-  "speed": 1.06
+  "style": 0.35,
+  "speed": 0.98
  },
  "say": {
   "Q500": "quinientos quetzales",
   "120": "ciento veinte",
   "6": "seis",
   "5ml": "cinco mililitros",
-  "Q70": "setenta quetzales"
+  "Q70": "setenta quetzales",
+  "Otto": "Oto",
+  "Aleman": "Alemán",
+  "Perfumes": "perfumes"
  },
  "scenes": [
   "¡Ey! Si te gustan los perfumes… esto te va a sonar.",
@@ -28,5 +31,19 @@
   "Por el precio de un frasco completo de Q500, llevate hasta 6 fragancias diferentes en decants de 5ml.",
   "Y con nuestra tarjeta de sellos digital, al juntar 6 sellos… te llevás un decant de 5ml de Q70, ¡gratis!",
   "Y vos… ¿con qué perfume te pasó eso? Contanos en los comentarios."
+ ],
+ "pauses": [
+  0.35,
+  0.4,
+  0.45,
+  0.5,
+  0.45,
+  0.5,
+  0.6,
+  0.5,
+  0.45,
+  0.45,
+  0.5,
+  0.4
  ]
 }

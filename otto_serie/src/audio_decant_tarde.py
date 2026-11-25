@@ -1,7 +1,7 @@
 """Audio de "Te enamoró en la mañana… y en la tarde ya no": marimba alegre suave (original), efectos
 (pop en cada corte, caja, atomizador, reloj, mareo, sellos, confeti) y la voz de David.
 
-Uso: VIDEO_BUILD=$PWD/otto_serie/build_decant VO_TRIM=0.15 VO_GAP=0.2 VO_TAIL=1.8 python3 otto_serie/src/audio_decant_tarde.py
+Uso: VIDEO_BUILD=$PWD/otto_serie/build_decant VO_TRIM=0.15 VO_GAP=0.3 VO_TAIL=2.0 python3 otto_serie/src/audio_decant_tarde.py
 """
 import os
 import subprocess

@@ -4,7 +4,7 @@ Estilo de la referencia: personaje (diseño A, otto_serie/src/mascota.py) con po
 fondos crema que cambian de color con la emoción, títulos grandes arriba, cursiva elegante y
 subtítulos abajo en pastilla. Decant negro y perfumes reales animados. Voz: David.
 Uso:
-  VIDEO_BUILD=$PWD/otto_serie/build_decant VO_TRIM=0.15 VO_GAP=0.2 VO_TAIL=1.8 \
+  VIDEO_BUILD=$PWD/otto_serie/build_decant VO_TRIM=0.15 VO_GAP=0.3 VO_TAIL=2.0 \
     python3 otto_serie/src/render_decant_tarde.py --out otto_serie/build_decant/video_mudo.mp4
 """
 import math
@@ -85,8 +85,14 @@ def bg(c, t, mood="cream", k=1.0, room=True):
             c.restore()
 
 
-def title(c, txt, k, y=330, size=84, col=INK, rot=0.0):
+OVER = []  # capas fijas (títulos) que se dibujan después de la cámara
+
+
+def title(c, txt, k, y=330, size=84, col=INK, rot=0.0, fixed=True):
     if k <= 0:
+        return
+    if fixed:
+        OVER.append(lambda cc: title(cc, txt, k, y, size, col, rot, False))
         return
     s = back_out(clamp(k), 1.8)
     f = F(R.RES.xbold, size)
@@ -101,8 +107,11 @@ def title(c, txt, k, y=330, size=84, col=INK, rot=0.0):
     c.restore()
 
 
-def italic(c, txt, k, y=460, size=52, col="#6a4a2a"):
+def italic(c, txt, k, y=460, size=52, col="#6a4a2a", fixed=True):
     if k <= 0:
+        return
+    if fixed:
+        OVER.append(lambda cc: italic(cc, txt, k, y, size, col, False))
         return
     f = F(R.RES.medium, size)
     w = f.measureText(txt)
@@ -361,102 +370,130 @@ def stamp_card(c, x, y, s, n, t, free_k):
     phone(c, x, y, s, d)
 
 
-# ----------------------------------------------------------------------------
 # escenas
 # ----------------------------------------------------------------------------
-FEET = 1480
-S0 = 0.86
+FEET = 1490
+S0 = 0.95
+
+
+class Cam:
+    """Cámara siempre en movimiento: empuje lento + deriva + golpes de zoom en palabras + acercamientos."""
+
+    def __init__(self, z0=1.0, z1=1.1, drift=30, punches=(), focus=(), rot=0.0):
+        self.z0, self.z1, self.drift, self.punches, self.focus, self.rot = z0, z1, drift, punches, focus, rot
+
+    def get(self, k):
+        lt, T = k.lt, k.w
+        u = ease_in_out(clamp(lt / max(k.D, 0.1)))
+        z = lerp(self.z0, self.z1, u)
+        fx = 540 + self.drift * math.sin(lt * 0.55)
+        fy = 960 + self.drift * 0.6 * math.sin(lt * 0.42 + 1)
+        rot = self.rot * math.sin(lt * 0.5)
+        for wi in self.punches:  # golpe de zoom
+            d = lt - T(wi)
+            if 0 <= d < 0.5:
+                z *= 1 + 0.07 * math.exp(-d * 9) * math.sin(min(d * 30, math.pi / 2))
+        for (a, b, zz, px, py, rr) in self.focus:  # acercamiento a un punto
+            ta, tb = (T(a) if isinstance(a, int) else a), (T(b) if isinstance(b, int) else b)
+            e = smooth(prog(lt, ta - 0.25, ta + 0.25)) * (1 - smooth(prog(lt, tb - 0.2, tb + 0.3)))
+            if e > 0:
+                z = lerp(z, zz, e)
+                fx, fy = lerp(fx, px, e), lerp(fy, py, e)
+                rot += rr * e * math.sin(lt * 6)
+        return z, fx, fy, rot
+
+
+FACE = (540, 640)
 
 
 def scene1(c, k):  # ¡Ey! Si te gustan los perfumes…
     lt, T = k.lt, k.w
     bg(c, k.t, "cream")
-    for i in range(3):  # frascos flotando
-        a = k.t * 0.8 + i * 2.1
-        bottle(c, i, 540 + math.cos(a) * 360, 820 + math.sin(a * 1.3) * 140, 0.5, 10 * math.sin(a), 0.4)
-    c.save()
-    z = lerp(1.15, 1.0, ease_out(prog(lt, 0, 0.6)))
-    c.translate(540, 1300)
-    c.scale(z, z)
-    c.translate(-540, -1300)
-    hero(c, k, 540, FEET, S0, [(0, "espera"), (T(6) - 0.1, "señala")], talk=True)
-    c.restore()
-    title(c, "¡EY!", prog(lt, T(0) - 0.1, T(0) + 0.15) * (1 - prog(lt, T(5), T(6) - 0.1)), size=130)
-    title(c, "¿TE HA PASADO?", prog(lt, T(6) - 0.1, T(6) + 0.2), size=90)
+    for i in range(3):  # frascos girando DETRÁS del personaje, lejos de la cara
+        a = k.t * 0.7 + i * 2.1
+        bottle(c, i, 540 + math.cos(a) * 400, 1000 + math.sin(a) * 110, 0.75, 10 * math.sin(a), 0.4)
+    ent = ease_out(prog(lt, 0, 0.4))
+    hero(c, k, lerp(1300, 540, ent), FEET, S0, [(0, "espera"), (T(6) - 0.1, "señala")], talk=True)
+    title(c, "¡EY!", prog(lt, T(0) - 0.1, T(0) + 0.15) * (1 - prog(lt, T(5), T(6) - 0.1)), size=140)
+    title(c, "¿TE HA PASADO?", prog(lt, T(6) - 0.1, T(6) + 0.2), size=96)
 
 
 def scene2(c, k):  # lo ves en todos lados
     lt, T = k.lt, k.w
     bg(c, k.t, "cream", room=False)
-    title(c, "LO VES EN\nTODOS LADOS", prog(lt, 0.05, 0.35), y=310, size=80)
+    title(c, "LO VES EN\nTODOS LADOS", prog(lt, 0.05, 0.35) * (1 - prog(lt, T(10) - 0.3, T(10))), y=300, size=86)
     if lt < T(10) - 0.2:
         for i, (st, pose, lab, rot) in enumerate((("C", "enamorado", "JOYAZO", -8), ("D", "pulgar", "OBLIGATORIO", 6), ("B", "celebra", "10/10", -4))):
             ki = prog(lt, T(2 + i * 2) - 0.3, T(2 + i * 2))
             if ki <= 0:
                 continue
-            x = 240 + i * 300
-            y = lerp(1900, 1020, back_out(ki, 1.2))
-            phone(c, x, y, 0.8, review_screen(st, pose, k.t), rot)
-            sticker(c, lab, x + 40, y - 250, prog(lt, T(2 + i * 2), T(2 + i * 2) + 0.3), bg_col=INK, rot=rot * 1.5, size=34)
+            x = 220 + i * 320
+            y = lerp(1900, 1080, back_out(ki, 1.2))
+            phone(c, x, y, 1.0, review_screen(st, pose, k.t), rot)
+            sticker(c, lab, x + 30, y - 330, prog(lt, T(2 + i * 2), T(2 + i * 2) + 0.3), bg_col=INK, rot=rot * 1.5, size=44)
     else:
         u = lt - (T(10) - 0.2)
-        small_person(c, 230, FEET, 0.6, k.t, "C", "señala")
-        small_person(c, 850, FEET, 0.6, k.t, "D", "pulgar")
-        hero(c, k, 540, FEET, 0.78, [(0, "neutral"), (T(14) - 0.2, "piensa"), (T(19), "enamorado")])
+        e = ease_out(clamp(u / 0.4))
+        small_person(c, lerp(-200, 170, e), FEET, 0.72, k.t, "C", "señala")
+        small_person(c, lerp(1300, 920, e), FEET, 0.72, k.t, "D", "pulgar")
+        hero(c, k, 540, FEET, 0.88, [(0, "neutral"), (T(14) - 0.2, "piensa"), (T(19), "enamorado")])
         bk = prog(u, T(14) - T(10) - 0.2, T(14) - T(10) + 0.2)
-        if bk > 0:  # nube de pensamiento con el frasco
-            s = back_out(bk, 1.6)
+        if bk > 0:  # nube de pensamiento con el frasco (arriba a la derecha, sin tapar la cara)
+            s = back_out(bk, 1.6) * 1.15
             c.save()
-            c.translate(780, 720)
+            c.translate(840, 560)
             c.scale(s, s)
-            for (bx, by, rr) in ((-80, 160, 18), (-50, 110, 26)):
+            for (bx, by, rr) in ((-150, 150, 16), (-120, 105, 24)):
                 oval(c, bx, by, rr, rr, P("#ffffff"))
             for (bx, by, rr) in ((0, 0, 110), (-90, 20, 80), (90, 20, 80), (0, -60, 90)):
                 oval(c, bx, by, rr, rr, P("#ffffff"))
-            bottle(c, 1, 0, 30, 0.55, 8 * math.sin(k.t * 2), 0.5)
+            bottle(c, 1, 0, 30, 0.62, 8 * math.sin(k.t * 2), 0.5)
             c.restore()
-        italic(c, "y ya no te lo sacás de la cabeza…", prog(lt, T(14), T(15)), y=1380)
+        italic(c, "y ya no te lo sacás de la cabeza…", prog(lt, T(14), T(15)), y=330, size=58)
 
 
 def scene3(c, k):  # lo pedís completo
     lt, T = k.lt, k.w
     bg(c, k.t, "cream")
-    title(c, "LO PEDÍS\nCOMPLETO", prog(lt, T(3) - 0.2, T(3) + 0.1), y=310, size=86)
-    hero(c, k, 540, FEET + 120, 0.86, [(0, "neutral"), (T(4), "pulgar")])
+    title(c, "LO PEDÍS\nCOMPLETO", prog(lt, T(3) - 0.2, T(3) + 0.1), y=300, size=90)
+    hero(c, k, 540, FEET + 120, 0.95, [(0, "neutral"), (T(4), "pulgar")])
     click = clamp(1 - abs(lt - T(4) - 0.2) / 0.25)
-    laptop(c, 540, 1400, 1.0, k.t, click)
-    sticker(c, "Q500", 860, 820, prog(lt, T(5) - 0.1, T(5) + 0.2), bg_col="#b8862a", size=70, rot=10)
+    laptop(c, 540, 1440, 1.2, k.t, click)
+    sticker(c, "Q500", 870, 760, prog(lt, T(5) - 0.1, T(5) + 0.2), bg_col="#b8862a", size=90, rot=10)
 
 
 def scene4(c, k):  # llega, abrís la caja, en la mañana ¡qué rico!
     lt, T = k.lt, k.w
     morning = prog(lt, T(11) - 0.3, T(11) + 0.2)
-    if morning < 1:
-        bg(c, k.t, "cream")
+    bg(c, k.t, "cream")
     if morning > 0:
         c.saveLayerAlpha(None, int(255 * morning))
         bg(c, k.t, "gold")
         c.restore()
-    if lt < T(8) - 0.2:  # puerta + caja
-        title(c, "¡POR FIN LLEGA!", prog(lt, 0.05, 0.3), size=84)
+    if lt < T(8) - 0.2:  # la caja
+        title(c, "¡POR FIN LLEGA!", prog(lt, 0.05, 0.3), size=90)
         open_k = prog(lt, T(3), T(5))
-        box(c, 540, 1300, 1.2 * lerp(0.6, 1.0, ease_out(prog(lt, 0, 0.5))), open_k, prog(lt, T(3) - 0.3, T(3)))
-        if open_k > 0.3:
-            bottle(c, 1, 540, lerp(1300, 900, ease_out(prog(lt, T(5), T(7)))), 1.0, 0, 0.8 * open_k)
-        sticker(c, "RRRIIIP", 820, 760, prog(lt, T(3) - 0.2, T(3) + 0.1) * (1 - prog(lt, T(5), T(5) + 0.3)), bg_col="#ffffff", fg=INK, size=38, rot=8, border=INK)
+        drop = ease_out(prog(lt, 0, 0.5))
+        bx_y = lerp(-300, 1320, drop) + 20 * math.sin(math.pi * clamp((lt - 0.5) / 0.3)) * (lt > 0.5)
+        if open_k > 0.3:  # el frasco sale de la caja (detrás del frente de la caja)
+            bottle(c, 1, 540, lerp(1300, 860, ease_out(prog(lt, T(5), T(7)))), 1.25, 0, 0.8 * open_k)
+        box(c, 540, bx_y, 1.45, open_k, prog(lt, T(3) - 0.3, T(3)))
+        sticker(c, "RRRIIIP", 840, 820, prog(lt, T(3) - 0.2, T(3) + 0.1) * (1 - prog(lt, T(5), T(5) + 0.3)), bg_col="#ffffff", fg=INK, size=52, rot=8, border=INK)
     else:
         hero(c, k, 540, FEET, S0, [(0, "sostiene"), (T(12), "enamorado")],
-             hold_fn=lambda cc, x, y: bottle(cc, 1, x, y - 60, 0.45, -10))
-        mist(c, 660, 860, T(8) - 0.1, lt)
-        mist(c, 660, 860, T(9) + 0.1, lt)
-        title(c, "9:00 AM", morning, size=110)
-        sticker(c, "¡QUÉ RICO!", 830, 720, prog(lt, T(13) - 0.1, T(13) + 0.2), bg_col="#2fbf71", size=48, rot=-5)
+             hold_fn=lambda cc, x, y: bottle(cc, 1, x, y - 80, 0.62, -10))
+        mist(c, 700, 780, T(8) - 0.1, lt, n=34)
+        mist(c, 700, 780, T(9) + 0.1, lt, n=34)
+        title(c, "9:00 AM", morning, size=120)
+        qk = prog(lt, T(13) - 0.1, T(13) + 0.2)
+        if qk > 0:
+            OVER.append(lambda cc: sticker(cc, "¡QUÉ RICO!", 540, 1390, qk, bg_col="#2fbf71", size=70, rot=-4))
         for i in range(3):  # todos te preguntan
             kk = prog(lt, T(15) + i * 0.25, T(15) + i * 0.25 + 0.3)
             if kk > 0:
-                x = (170, 910, 200)[i]
-                y = (1100, 1050, 1350)[i]
-                sticker(c, "¿Qué usás?", x, y, kk, bg_col="#ffffff", fg=INK, size=30, rot=(-6, 6, 4)[i], border=INK)
+                x = (175, 905, 190)[i]
+                y = (1050, 1120, 1320)[i]
+                sticker(c, "¿Qué usás?", x, y, kk, bg_col="#ffffff", fg=INK, size=42, rot=(-6, 6, 4)[i], border=INK)
 
 
 def scene5(c, k):  # a las tres de la tarde… cambia
@@ -468,10 +505,19 @@ def scene5(c, k):  # a las tres de la tarde… cambia
         bg(c, k.t, "gray")
         c.restore()
     hours = lerp(9, 15, ease_in_out(prog(lt, 0.1, T(6))))
-    clock(c, 820, 760, 140, hours)
-    title(c, "3:00 PM", prog(lt, T(6) - 0.2, T(6) + 0.1), size=110)
-    hero(c, k, 430, FEET, S0, [(0, "enamorado"), (T(7), "neutral"), (T(9) - 0.2, "piensa")])
-    italic(c, "y el perfume cambia…", prog(lt, T(9), T(10)), y=1380)
+    clock(c, 840, 700, 170, hours)
+    title(c, "3:00 PM", prog(lt, T(6) - 0.2, T(6) + 0.1), size=120)
+    hero(c, k, 320, FEET, S0, [(0, "enamorado"), (T(7), "neutral"), (T(9) - 0.2, "piensa")])
+    italic(c, "y el perfume cambia…", prog(lt, T(9), T(10)), y=1380, size=58)
+
+
+def heavy_orbit(c, k, fk, front):
+    for i in range(10):
+        a = k.t * 1.5 + i * 0.63
+        s_ = math.sin(a)
+        if (s_ > 0) != front:
+            continue
+        note_icon(c, 3, 540 + math.cos(a) * 320, 1080 + s_ * 90, 1.6, fk)
 
 
 def scene6(c, k):  # notas de salida se van, queda el fondo, empalaga, marea
@@ -484,55 +530,54 @@ def scene6(c, k):  # notas de salida se van, queda el fondo, empalaga, marea
             c.saveLayerAlpha(None, int(255 * a))
             bg(c, k.t, mood)
             c.restore()
-    # notas de salida subiendo y desapareciendo
     r = rng(5)
-    for i in range(14):
+    for i in range(14):  # notas de salida subiendo y desapareciendo (a los lados)
         kind = i % 3
-        x = 140 + r.random() * 800
+        x = (120 + r.random() * 250) if i % 2 else (710 + r.random() * 250)
         u = (lt - r.random() * 1.4) / 2.2
         if 0 < u < 1 and lt < T(7) + 0.5:
-            note_icon(c, kind, x, lerp(1300, 520, u), 1.2, (1 - u))
-    # el fondo pesado rodeándolo
-    fk = prog(lt, T(7), T(9) + 0.3)
+            note_icon(c, kind, x, lerp(1350, 520, u), 1.7, (1 - u))
+    fk = prog(lt, T(7), T(9) + 0.3) * (1 - 0.5 * green)
     if fk > 0:
-        for i in range(10):
-            a = k.t * 1.5 + i * 0.63
-            note_icon(c, 3, 540 + math.cos(a) * 260, 1050 + math.sin(a) * 200, 1.2, fk * (1 - green * 0.5))
-    pose_keys = [(0, "neutral"), (T(10), "encoge"), (T(18) - 0.15, "asco"), (T(19) - 0.1, "mareado")]
-    hero(c, k, 540, FEET, S0, pose_keys)
-    title(c, "LAS NOTAS DE SALIDA\nSE EVAPORAN", prog(lt, 0.05, 0.35) * (1 - prog(lt, T(9) - 0.2, T(9))), y=300, size=70)
-    title(c, "QUEDA EL FONDO…", prog(lt, T(9) - 0.1, T(9) + 0.2) * (1 - prog(lt, T(17) - 0.3, T(17) - 0.1)), size=80)
-    sticker(c, "EMPALAGOSO", 540, 330, pink, bg_col="#ff5a9a", size=60, rot=-4)
-    sticker(c, "MAREO", 540, 330, green, bg_col="#2f8f3a", size=66, rot=4)
+        heavy_orbit(c, k, fk, front=False)
+    hero(c, k, 540, FEET, S0, [(0, "neutral"), (T(10), "encoge"), (T(18) - 0.15, "asco"), (T(19) - 0.1, "mareado")])
+    if fk > 0:
+        heavy_orbit(c, k, fk, front=True)
+    title(c, "LAS NOTAS DE SALIDA\nSE EVAPORAN", prog(lt, 0.05, 0.35) * (1 - prog(lt, T(9) - 0.2, T(9))), y=290, size=74)
+    title(c, "QUEDA EL FONDO…", prog(lt, T(9) - 0.1, T(9) + 0.2) * (1 - prog(lt, T(17) - 0.3, T(17) - 0.1)), size=86)
+    if pink > 0:
+        OVER.append(lambda cc: sticker(cc, "EMPALAGOSO", 540, 330, pink, bg_col="#ff5a9a", size=70, rot=-4))
+    if green > 0:
+        OVER.append(lambda cc: sticker(cc, "MAREO", 540, 330, green, bg_col="#2f8f3a", size=78, rot=4))
 
 
 def scene7(c, k):  # el frasco de Q500 que ni querés usar
     lt, T = k.lt, k.w
     bg(c, k.t, "cream")
-    rrect(c, 120, 900, 520, 930, 6, P("#a87a4a"))  # repisa
-    bottle(c, 1, 320, 800, 0.7, 0)
+    rrect(c, 90, 960, 560, 995, 6, P("#a87a4a"))  # repisa
+    bottle(c, 1, 320, 840, 0.95, 0)
     r = rng(8)
-    for i in range(30):  # polvo
-        oval(c, 220 + r.random() * 200, 640 + r.random() * 250 + 6 * math.sin(k.t + i), 3, 3, P("#9a8a7a", alpha=0.6))
+    for i in range(40):  # polvo
+        oval(c, 180 + r.random() * 280, 620 + r.random() * 320 + 6 * math.sin(k.t + i), 3.5, 3.5, P("#9a8a7a", alpha=0.6))
     sk = prog(lt, T(6) - 0.1, T(6) + 0.2)
-    sticker(c, "Q500", 420, 640, sk, bg_col="#b8862a", size=56, rot=8)
+    sticker(c, "Q500", 470, 760, sk, bg_col="#b8862a", size=64, rot=8)
     xk = prog(lt, T(7), T(8))
     if xk > 0:
-        c.drawLine(350, 660, lerp(350, 500, xk), lerp(660, 610, xk), P("#e0203a", "stroke", 12))
-    hero(c, k, 760, FEET, S0, [(0, "neutral"), (T(2), "triste")])
-    italic(c, "y ahora ni lo querés usar…", prog(lt, T(7), T(8)), y=430, size=56)
+        c.drawLine(385, 785, lerp(385, 560, xk), lerp(785, 735, xk), P("#e0203a", "stroke", 14))
+    hero(c, k, 800, FEET, S0, [(0, "neutral"), (T(2), "triste")])
+    italic(c, "y ahora ni lo querés usar…", prog(lt, T(7), T(8)), y=420, size=60)
 
 
 def scene8(c, k):  # el error
     lt, T = k.lt, k.w
     bg(c, k.t, "white", room=False)
-    title(c, "EL ERROR NO FUE\nEL PERFUME", prog(lt, T(0) - 0.1, T(0) + 0.2) * (1 - prog(lt, T(6) - 0.3, T(6) - 0.1)), y=300, size=76)
+    title(c, "EL ERROR NO FUE\nEL PERFUME", prog(lt, T(0) - 0.1, T(0) + 0.2) * (1 - prog(lt, T(6) - 0.3, T(6) - 0.1)), y=290, size=82)
     ek = prog(lt, T(6) - 0.1, T(6) + 0.2)
     if ek > 0:
-        title(c, "OLER", ek, y=290, size=100)
-        text_center(c, "≠", 540, 400, F(R.RES.xbold, 90), P(GOLDD, alpha=ek))
-        title(c, "PROBARLO\nTODO EL DÍA", prog(lt, T(8), T(9)), y=500, size=76, col=GOLDD)
-    hero(c, k, 540, FEET + 40, 0.8, [(0, "piensa"), (T(6), "señala")], talk=True)
+        title(c, "OLER", ek, y=280, size=110)
+        OVER.append(lambda cc: text_center(cc, "≠", 540, 400, F(R.RES.xbold, 100), P(GOLDD, alpha=ek)))
+        title(c, "PROBARLO\nTODO EL DÍA", prog(lt, T(8), T(9)), y=500, size=82, col=GOLDD)
+    hero(c, k, 540, FEET + 60, 0.88, [(0, "piensa"), (T(6), "señala")], talk=True)
 
 
 def scene9(c, k):  # Otto Aleman Perfumes: decants, 1 mes, 120 atomizaciones
@@ -542,22 +587,24 @@ def scene9(c, k):  # Otto Aleman Perfumes: decants, 1 mes, 120 atomizaciones
     if lk > 0:
         img = M.logo()
         s = back_out(lk, 1.6)
-        w = 300 * s
+        w = 340 * s
         h = w * img.height() / img.width()
-        glow(c, R.RES.glow_warm, 540, 360, 320, 0.6 * lk)
-        c.drawImageRect(img, RECT(540 - w / 2, 360 - h / 2, 540 + w / 2, 360 + h / 2), R.SAMP, skia.Paint())
-        text_center(c, "OTTO ALEMAN PERFUMES", 540, 540, F(R.RES.xbold, 46), P(INK, alpha=lk))
+        glow(c, R.RES.glow_warm, 540, 420, 360, 0.6 * lk)
+        c.drawImageRect(img, RECT(540 - w / 2, 420 - h / 2, 540 + w / 2, 420 + h / 2), R.SAMP, skia.Paint())
+        text_center(c, "OTTO ALEMAN PERFUMES", 540, 640, F(R.RES.xbold, 54), P(INK, alpha=lk))
     dk = prog(lt, T(8) - 0.2, T(8) + 0.3)
     if dk > 0:
-        decant(c, 790, lerp(1900, 1000, back_out(dk, 1.3)), 520, 8 * math.sin(k.t * 1.5), k.t, 0.9)
-        sticker(c, "DECANT 5 ML", 790, 1330, prog(lt, T(8), T(8) + 0.3), bg_col=INK, size=38, rot=-4)
-    hero(c, k, 300, FEET, 0.78, [(0, "celebra"), (T(9), "señala")], talk=True)
+        decant(c, 820, lerp(1900, 1080, back_out(dk, 1.3)), 600, 8 * math.sin(k.t * 1.5), k.t, 0.9)
+        sticker(c, "DECANT 5 ML", 820, 1450, prog(lt, T(8), T(8) + 0.3), bg_col=INK, size=46, rot=-4)
+    he = ease_out(prog(lt, T(8) - 0.4, T(8)))
+    if he > 0:
+        hero(c, k, lerp(-300, 270, he), FEET, 0.88, [(0, "celebra"), (T(9), "señala")], talk=True)
     mk = prog(lt, T(12), T(15))
     if mk > 0:  # calendario 1 mes
-        c.save()
-        c.translate(540, 470)
         mk2 = clamp(mk * 2) * (1 - prog(lt, T(16) - 0.3, T(16)))
-        c.scale(back_out(mk2, 1.6), back_out(mk2, 1.6))
+        c.save()
+        c.translate(700, 470)
+        c.scale(back_out(mk2, 1.6) * 1.3, back_out(mk2, 1.6) * 1.3)
         rrect(c, -110, -110, 110, 110, 16, P("#ffffff"))
         rrect(c, -110, -110, 110, -50, 16, P("#e0203a"))
         c.drawRect(RECT(-110, -70, 110, -50), P("#e0203a"))
@@ -567,36 +614,35 @@ def scene9(c, k):  # Otto Aleman Perfumes: decants, 1 mes, 120 atomizaciones
     ck = prog(lt, T(16), T(19) + 0.3)
     if ck > 0:  # contador de atomizaciones
         n = int(120 * ease_out(ck))
-        title(c, f"{n}", 1.0, y=500, size=170, col=GOLDD)
-        text_center(c, "ATOMIZACIONES", 540, 580, F(R.RES.xbold, 46), P(INK, alpha=ck))
+        OVER.append(lambda cc: text_center(cc, f"{n}", 700, 520, F(R.RES.xbold, 190), P(GOLDD)))
+        OVER.append(lambda cc: text_center(cc, "ATOMIZACIONES", 700, 600, F(R.RES.xbold, 50), P(INK, alpha=ck)))
         for j in range(3):
-            mist(c, 720, 760, T(16) + j * 0.5, lt, n=16, dirx=-1)
+            mist(c, 740, 820, T(16) + j * 0.5, lt, n=20, dirx=-1)
 
 
 def scene10(c, k):  # ¿te encantó? frasco completo / ¿no? probá otra
     lt, T = k.lt, k.w
     sw = T(6) - 0.15
     c.save()
-    c.clipRect(RECT(0, 0, W / 2, H))
+    c.clipRect(RECT(-300, -300, W / 2, H + 300))
     bg(c, k.t, "gold", room=False)
-    c.translate(-270, 0)
-    hero(c, k, 540, FEET, 0.75, [(0, "pulgar")])
-    bottle(c, 1, 830, 1180, 0.7, -8, 0.6)
+    hero(c, k, 180, FEET, 0.74, [(0, "pulgar")])
+    bottle(c, 1, 445, 1230, 0.68, -8, 0.6)
     c.restore()
     c.save()
-    c.clipRect(RECT(W / 2, 0, W, H))
+    c.clipRect(RECT(W / 2, -300, W + 300, H + 300))
     bg(c, k.t, "cream", room=False)
     if lt > sw:
-        c.translate(270, 0)
-        hero(c, k, 540, FEET, 0.75, [(0, "encoge")])
+        e = ease_out(clamp((lt - sw) / 0.35))
+        hero(c, k, lerp(1300, 740, e), FEET, 0.72, [(0, "encoge")])
         for i in range(2):
-            decant(c, 300 + i * 70, 1150, 200, -10 + i * 20, k.t)
+            decant(c, 975 + i * 60 + (1 - e) * 400, 1290, 200, -10 + i * 20, k.t)
     c.restore()
-    c.drawLine(540, 600, 540, 1600, P(INK, "stroke", 6))
-    sticker(c, "¿TE ENCANTÓ?", 270, 420, prog(lt, T(0), T(0) + 0.3), bg_col="#2fbf71", size=40, rot=-4)
-    sticker(c, "FRASCO COMPLETO", 270, 520, prog(lt, T(4), T(4) + 0.3), bg_col=INK, size=32, rot=3)
-    sticker(c, "¿NO?", 810, 420, prog(lt, T(6) - 0.1, T(6) + 0.2), bg_col="#e0203a", size=44, rot=4)
-    sticker(c, "PROBÁ OTRA", 810, 520, prog(lt, T(7), T(7) + 0.3), bg_col=INK, size=36, rot=-3)
+    c.drawLine(540, 480, 540, 1700, P(INK, "stroke", 6))
+    sticker(c, "¿TE ENCANTÓ?", 270, 560, prog(lt, T(0), T(0) + 0.3), bg_col="#2fbf71", size=48, rot=-4)
+    sticker(c, "FRASCO COMPLETO", 270, 670, prog(lt, T(4), T(4) + 0.3), bg_col=INK, size=36, rot=3)
+    sticker(c, "¿NO?", 810, 560, prog(lt, T(6) - 0.1, T(6) + 0.2), bg_col="#e0203a", size=54, rot=4)
+    sticker(c, "PROBÁ OTRA", 810, 670, prog(lt, T(7), T(7) + 0.3), bg_col=INK, size=42, rot=-3)
 
 
 def scene11(c, k):  # 1 frasco Q500 = hasta 6 decants
@@ -606,35 +652,39 @@ def scene11(c, k):  # 1 frasco Q500 = hasta 6 decants
     tilt = lerp(-12, 0, ease_out(prog(lt, T(11), T(13))))
 
     def left(c2):
-        bottle(c2, 1, 0, -40, 0.55, 0)
-        sticker(c2, "Q500", 0, 70, prog(lt, T(8) - 0.1, T(8) + 0.2), bg_col="#b8862a", size=34, rot=0)
+        bottle(c2, 1, 0, -60, 0.75, 0)
+        sticker(c2, "Q500", 0, 80, prog(lt, T(8) - 0.1, T(8) + 0.2), bg_col="#b8862a", size=46, rot=0)
 
     def right(c2):
         for i in range(n):
-            decant(c2, -90 + (i % 3) * 90, -70 - (i // 3) * 40 + (i // 3) * 0, 120, (-8, 0, 8)[i % 3], k.t)
-    scale_balance(c, 540, 1180, tilt, left, right)
-    title(c, "1 FRASCO", prog(lt, T(5) - 0.1, T(5) + 0.2), y=300, size=80)
-    title(c, "= HASTA 6 FRAGANCIAS", prog(lt, T(11) - 0.1, T(11) + 0.2), y=400, size=64, col=GOLDD)
-    sticker(c, "DECANTS DE 5 ML", 540, 1420, prog(lt, T(15), T(15) + 0.3), bg_col=INK, size=40, rot=-3)
+            decant(c2, -80 + (i % 3) * 80, -95 - (i // 3) * 60, 160, (-8, 0, 8)[i % 3], k.t)
+    scale_balance(c, 540, 1240, tilt, left, right)
+    title(c, "1 FRASCO", prog(lt, T(5) - 0.1, T(5) + 0.2), y=290, size=90)
+    title(c, "= HASTA 6 FRAGANCIAS", prog(lt, T(11) - 0.1, T(11) + 0.2), y=400, size=70, col=GOLDD)
+    sticker(c, "DECANTS DE 5 ML", 540, 1460, prog(lt, T(15), T(15) + 0.3), bg_col=INK, size=48, rot=-3)
 
 
 def scene12(c, k):  # tarjeta de sellos digital: 6 sellos → decant gratis
     lt, T = k.lt, k.w
     free = prog(lt, T(19) - 0.1, T(19) + 0.2)
-    bg(c, k.t, "gold" if free > 0 else "cream", room=False)
-    title(c, "TARJETA DE\nSELLOS DIGITAL", prog(lt, T(3) - 0.1, T(3) + 0.2), y=300, size=74)
+    bg(c, k.t, "cream", room=False)
+    if free > 0:
+        c.saveLayerAlpha(None, int(255 * free))
+        bg(c, k.t, "gold", room=False)
+        c.restore()
+    title(c, "TARJETA DE\nSELLOS DIGITAL", prog(lt, T(3) - 0.1, T(3) + 0.2), y=290, size=80)
     n = int(6 * prog(lt, T(8) - 0.6, T(10) + 0.2) + 0.0001)
-    stamp_card(c, 360, 1000, 1.2, n, k.t, free)
-    hero(c, k, 900, FEET, 0.58, [(0, "señala"), (T(19) - 0.1, "celebra")])
+    stamp_card(c, 330, 1020, 1.4, n, k.t, free)
+    hero(c, k, 905, FEET, 0.66, [(0, "neutral"), (T(19) - 0.1, "celebra")])
     dk = prog(lt, T(14) - 0.2, T(14) + 0.3)
     if dk > 0:
-        decant(c, 700, lerp(1900, 820, back_out(dk, 1.3)), 300, 8 * math.sin(k.t * 2), k.t, 0.8)
-        sticker(c, "Q70", 800, 650, prog(lt, T(18) - 0.1, T(18) + 0.2), bg_col="#b8862a", size=40, rot=10)
+        decant(c, 650, lerp(1900, 900, back_out(dk, 1.3)), 320, 8 * math.sin(k.t * 2), k.t, 0.8)
+        sticker(c, "Q70", 720, 660, prog(lt, T(18) - 0.1, T(18) + 0.2), bg_col="#b8862a", size=52, rot=10)
         xk = prog(lt, T(19) - 0.2, T(19))
         if xk > 0:
-            c.drawLine(750, 660, lerp(750, 850, xk), lerp(660, 630, xk), P("#e0203a", "stroke", 10))
+            c.drawLine(665, 675, lerp(665, 780, xk), lerp(675, 642, xk), P("#e0203a", "stroke", 12))
     if free > 0:
-        sticker(c, "¡GRATIS!", 540, 560, free, bg_col="#2fbf71", size=70, rot=-5)
+        OVER.append(lambda cc: sticker(cc, "¡GRATIS!", 540, 520, free, bg_col="#2fbf71", size=80, rot=-5))
         r = rng(3)
         for i in range(60):  # confeti
             x = r.random() * W
@@ -644,48 +694,64 @@ def scene12(c, k):  # tarjeta de sellos digital: 6 sellos → decant gratis
             c.save()
             c.translate(x, y)
             c.rotate(k.t * 200 + i * 30)
-            c.drawRect(RECT(-9, -5, 9, 5), P(["#d6a24a", "#ff3d6a", "#2fbf71", "#2f6bff", "#ffffff"][i % 5]))
+            c.drawRect(RECT(-11, -6, 11, 6), P(["#d6a24a", "#ff3d6a", "#2fbf71", "#2f6bff", "#ffffff"][i % 5]))
             c.restore()
 
 
 def scene13(c, k):  # ¿con qué perfume te pasó eso?
     lt, T = k.lt, k.w
     bg(c, k.t, "cream", room=False)
-    title(c, "¿CON QUÉ PERFUME\nTE PASÓ ESO?", prog(lt, T(2) - 0.1, T(2) + 0.2), y=300, size=74)
-    hero(c, k, 300, FEET, 0.8, [(0, "piensa"), (T(8) - 0.2, "señala")], talk=True)
+    title(c, "¿CON QUÉ PERFUME\nTE PASÓ ESO?", prog(lt, T(2) - 0.1, T(2) + 0.2), y=290, size=78)
+    hero(c, k, 290, FEET, 0.9, [(0, "piensa"), (T(8) - 0.2, "señala")], talk=True)
     bk = ease_out(prog(lt, T(8) - 0.1, T(8) + 0.3))
     if bk > 0:
         c.save()
-        c.translate(700, 980)
+        c.translate(720, 960)
         c.scale(bk, bk)
-        rrect(c, -300, -60, 300, 60, 60, P("#ffffff"))
-        rrect(c, -300, -60, 300, 60, 60, P(INK, "stroke", 4))
-        oval(c, -244, 0, 30, 30, P(GOLDD))
+        rrect(c, -330, -70, 330, 70, 70, P("#ffffff"))
+        rrect(c, -330, -70, 330, 70, 70, P(INK, "stroke", 4))
+        oval(c, -266, 0, 34, 34, P(GOLDD))
         msg = "Me pasó con…"
         typed = msg[: int(len(msg) * prog(lt, T(8), T(11) + 0.3))]
-        c.drawString(typed, -196, 14, F(R.RES.semi, 40), P(INK))
+        c.drawString(typed, -214, 16, F(R.RES.semi, 48), P(INK))
         c.restore()
-    msgs = ["a mí con uno dulce 😩", "con uno amaderado", "me pasó con uno árabe", "jajaja a mí también", "con uno de vainilla"]
+    msgs = ["a mí con uno dulce", "con uno amaderado", "me pasó con uno árabe", "jajaja a mí también", "con uno de vainilla"]
     r = rng(11)
     for i in range(10):
-        u = (lt - (T(9) + i * 0.3)) / 2.6
+        u = (lt - (T(9) + i * 0.32)) / 2.4
         if u <= 0 or u >= 1:
             continue
-        x = 700 + (r.random() - 0.5) * 300
-        y = lerp(1450, 1120, u)
+        x = 740 + (r.random() - 0.5) * 220
+        y = lerp(1460, 1110, u)
         a = math.sin(math.pi * u)
-        tx = msgs[i % len(msgs)].replace(" 😩", "")
-        f = F(R.RES.semi, 28)
-        w = f.measureText(tx) + 70
+        tx = msgs[i % len(msgs)]
+        f = F(R.RES.semi, 34)
+        w = f.measureText(tx) + 80
         c.save()
         c.translate(x, y)
-        rrect(c, -w / 2, -30, w / 2, 30, 30, P("#ffffff", alpha=0.95 * a))
-        oval(c, -w / 2 + 30, 0, 16, 16, P(["#b8862a", "#2f6bff", "#ff3d6a", "#2fbf71"][i % 4], alpha=a))
-        c.drawString(tx, -w / 2 + 56, 10, f, P(INK, alpha=a))
+        rrect(c, -w / 2, -36, w / 2, 36, 36, P("#ffffff", alpha=0.96 * a))
+        rrect(c, -w / 2, -36, w / 2, 36, 36, P(INK, "stroke", 2, alpha=0.3 * a))
+        oval(c, -w / 2 + 34, 0, 18, 18, P(["#b8862a", "#2f6bff", "#ff3d6a", "#2fbf71"][i % 4], alpha=a))
+        c.drawString(tx, -w / 2 + 64, 12, f, P(INK, alpha=a))
         c.restore()
 
 
 SCENES = [scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8, scene9, scene10, scene11, scene12, scene13]
+CAMS = [
+    Cam(1.18, 1.0, punches=(0, 6)),
+    Cam(1.0, 1.1, punches=(2, 4, 6, 14), focus=((14, 23, 1.25, 640, 760, 0),)),
+    Cam(1.05, 1.18, punches=(4, 5), focus=((5, 99, 1.2, 640, 980, 0),)),
+    Cam(1.0, 1.08, punches=(3, 13), focus=((5, 7, 1.25, 540, 900, 0), (13, 15, 1.6, 540, 700, 2))),
+    Cam(1.0, 1.1, punches=(3,), focus=((1, 6, 1.35, 800, 760, 0), (9, 99, 1.45, 330, 700, 0))),
+    Cam(1.0, 1.08, punches=(7, 18, 19), focus=((18, 19, 1.6, 540, 700, 2), (19, 99, 1.6, 540, 700, 5))),
+    Cam(1.1, 1.0, drift=0, focus=((0, 4, 1.18, 400, 820, 0), (7, 99, 1.3, 760, 760, 0))),
+    Cam(1.0, 1.15, punches=(0, 6)),
+    Cam(1.0, 1.06, punches=(3, 8, 12, 18), focus=((8, 11, 1.2, 640, 1000, 0),)),
+    Cam(1.0, 1.1, punches=(0, 4, 6)),
+    Cam(1.05, 1.12, punches=(8, 11, 15), rot=1.5),
+    Cam(1.0, 1.08, punches=(9, 19), focus=((7, 11, 1.25, 360, 1000, 0), (17, 99, 1.1, 560, 950, 0))),
+    Cam(1.0, 1.1, punches=(2, 8)),
+]
 
 
 # ----------------------------------------------------------------------------
@@ -694,7 +760,7 @@ SCENES = [scene1, scene2, scene3, scene4, scene5, scene6, scene7, scene8, scene9
 
 
 def draw_subs(c, t, phr):
-    f = F(R.RES.bold, 44)
+    f = F(R.RES.bold, 46)
     for p in phr:
         if not (p["s"] <= t < p["e"]):
             continue
@@ -708,10 +774,10 @@ def draw_subs(c, t, phr):
             line.append(w)
             wsum += ww
         lines.append(line)
-        lh = 58
-        top = 1590 - (len(lines) - 1) * lh / 2
+        lh = 60
+        top = 1600 - (len(lines) - 1) * lh / 2
         maxw = max(sum(f.measureText(w["w"] + " ") for w in ln) for ln in lines)
-        rrect(c, 540 - maxw / 2 - 26, top - 46, 540 + maxw / 2 + 20, top + (len(lines) - 1) * lh + 22, 22, P("#ffffff", alpha=0.94))
+        rrect(c, 540 - maxw / 2 - 26, top - 48, 540 + maxw / 2 + 20, top + (len(lines) - 1) * lh + 22, 22, P("#ffffff", alpha=0.95))
         for li, ln in enumerate(lines):
             lw = sum(f.measureText(w["w"] + " ") for w in ln)
             x = 540 - lw / 2
@@ -728,7 +794,7 @@ def draw_watermark(c):
     f = F(R.RES.semi, 28)
     txt = "@ottoaleman.perfumesgt"
     w = f.measureText(txt)
-    c.drawString(txt, 540 - w / 2, 1760, f, P("#6a4a2a", alpha=0.75))
+    c.drawString(txt, 540 - w / 2, 1770, f, P("#6a4a2a", alpha=0.75))
 
 
 def render_frame(c, t, vo, phr, total):
@@ -736,16 +802,19 @@ def render_frame(c, t, vo, phr, total):
     c.clear(R.hexc(CREAM))
     k = R.Ctx(vo, si, t)
     lt = k.lt
-    if 0 < si and lt < 0.18:  # corte con pequeño empuje
-        q = 1 - ease_out(lt / 0.18)
-        c.save()
-        c.translate(540, 960)
-        c.scale(1 + 0.06 * q, 1 + 0.06 * q)
-        c.translate(-540, -960)
-        SCENES[si](c, k)
-        c.restore()
-    else:
-        SCENES[si](c, k)
+    OVER.clear()
+    z, fx, fy, rot = CAMS[si].get(k)
+    if 0 < si and lt < 0.2:  # corte con empuje
+        z *= 1 + 0.08 * (1 - ease_out(lt / 0.2))
+    c.save()
+    c.translate(540, 960)
+    c.rotate(rot)
+    c.scale(z, z)
+    c.translate(-fx, -fy)
+    SCENES[si](c, k)
+    c.restore()
+    for fn in OVER:
+        fn(c)
     fade = clamp(t / 0.2) * clamp((total - t) / 0.4)
     if fade < 1:
         c.drawRect(RECT(0, 0, W, H), P("#000000", alpha=1 - fade))
