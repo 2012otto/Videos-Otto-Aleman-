@@ -1,27 +1,34 @@
-"""Personaje de la serie Otto Aleman Perfumes (estilo "bitmoji", original) con esqueleto articulado.
+"""Personaje de la serie Otto Aleman Perfumes: joven en traje (estilo "bitmoji", diseño original).
 
-Partes móviles: inclinación del cuerpo, cabeza (inclinación y giro), cejas, ojos (abiertos, felices,
-corazones, espiral, llorosos, cerrados), boca (sonrisa, abierta, "O", triste, ondulada, asco) que también
-habla, hombros, codos, muñecas con varias manos (abierta, señalar, pulgar arriba, puño, sostener), cadera,
-rodillas y pies (para caminar). Origen = entre los pies; mide ~1000 px a escala 1.
+Esqueleto articulado con extremidades de verdad: brazo, codo, antebrazo con puño de camisa, muñeca y mano
+(5 tipos); muslo, rodilla, pierna y zapato. Cabeza con inclinación y giro, cejas, 7 tipos de ojos,
+6 bocas que además se mueven al hablar. Logo "OA" pequeño en el bolsillo del pecho.
+Origen = entre los pies; mide ~1000 px a escala 1.
 
-Uso:
-    from mascota import draw, POSES
-    draw(c, x, y, s, t, POSES["saludo"], talk=0.0)
+    from mascota import draw, POSES, STYLES
+    draw(c, x, y, s, t, POSES["saludo"], style=STYLES["A"], talk=0.0)
 """
 import math
+import os
 
+import numpy as np
 import skia
+from PIL import Image
 
 import render as R
 from render import P, lin, rad, oval, rrect, clamp, lerp
 
-SKIN = ("#f1c3a0", "#d99a74")
-HAIR = "#2a1a12"
-SHIRT = "#16161c"       # camisa negra
-TRIM = "#d6a24a"         # detalles dorados de la marca
-PANTS = ("#e6d6b8", "#c8b48e")
-SHOE = "#f4f1ea"
+OUT = "#2a1a1a"  # contorno suave
+_LOGO = None
+
+
+def logo():
+    global _LOGO
+    if _LOGO is None:
+        arr = np.asarray(Image.open(os.path.join(R.A, "logo_gold.png")).convert("RGBA")).copy()
+        _LOGO = skia.Image.fromarray(arr, colorType=skia.kRGBA_8888_ColorType,
+                                     alphaType=skia.kUnpremul_AlphaType).withDefaultMipmaps()
+    return _LOGO
 
 
 def mix(a, b, t):
@@ -29,10 +36,25 @@ def mix(a, b, t):
     return "#%02x%02x%02x" % (skia.ColorGetR(c), skia.ColorGetG(c), skia.ColorGetB(c))
 
 
+STYLES = {
+    # traje negro, camisa blanca, corbata delgada dorada, copete
+    "A": dict(jacket="#17171d", shirt="#ffffff", tie="#d6a24a", pants="#17171d", shoes="#2a1a12",
+              hair="#2a1a12", hair_style="copete", beard=0.0, skin=("#f1c3a0", "#d99a74")),
+    # traje crema, camiseta negra, sin corbata, pelo corto degradado, barba corta
+    "B": dict(jacket="#e9dcc4", shirt="#16161c", tie=None, pants="#e9dcc4", shoes="#f4f1ea",
+              hair="#1a120a", hair_style="fade", beard=0.45, skin=("#d9a07a", "#b97a56")),
+    # traje azul marino, camisa blanca sin corbata, pelo ondulado
+    "C": dict(jacket="#1c2a4a", shirt="#ffffff", tie=None, pants="#1c2a4a", shoes="#3a2214",
+              hair="#3a2418", hair_style="ondulado", beard=0.0, skin=("#f4cdb0", "#dba684")),
+    # traje negro, camisa negra, corbata dorada, barba
+    "D": dict(jacket="#101014", shirt="#2c2c36", tie="#e0b050", pants="#101014", shoes="#101014",
+              hair="#120a06", hair_style="copete", beard=0.55, skin=("#c98a62", "#a86a44")),
+}
+
 BASE = dict(lean=0.0, bob=0.0, head_tilt=0.0, head_turn=0.0,
-            arm_l=(10, 10, "open"), arm_r=(10, 10, "open"),   # (hombro°, codo°, mano)  0 = colgando
-            leg_l=(0, 0), leg_r=(0, 0),                        # (cadera°, rodilla°)
-            eyes="open", brows=0.0, mouth="smile", blush=0.0, sweat=0.0, look=(0.0, 0.0), hold=None)
+            arm_l=(8, 12, "open"), arm_r=(8, 12, "open"),   # (hombro°, codo°, mano); 0 = colgando
+            leg_l=(0, 0), leg_r=(0, 0),                      # (cadera°, rodilla°)
+            eyes="open", brows=0.0, brow_up=0.0, mouth="smile", blush=0.0, sweat=0.0, look=(0.0, 0.0))
 
 
 def pose(**kw):
@@ -43,23 +65,23 @@ def pose(**kw):
 
 POSES = {
     "neutral": pose(),
-    "saludo": pose(arm_r=(150, 30, "open"), mouth="open", head_tilt=4),
-    "espera": pose(arm_l=(155, 25, "open"), arm_r=(155, 25, "open"), mouth="O", eyes="wide", brows=-0.35),
+    "saludo": pose(arm_r=(140, 35, "open"), mouth="open", head_tilt=4),
+    "espera": pose(arm_l=(150, 25, "open"), arm_r=(150, 25, "open"), mouth="O", eyes="wide", brow_up=1.0),
     "señala": pose(arm_r=(95, -5, "point"), mouth="smile", head_turn=0.3, look=(0.6, 0)),
-    "pulgar": pose(arm_r=(60, 80, "thumb"), mouth="open", eyes="happy", blush=0.5),
-    "encoge": pose(arm_l=(60, -70, "open"), arm_r=(60, -70, "open"), mouth="wavy", brows=-0.4, head_tilt=-6),
-    "piensa": pose(arm_r=(25, 160, "fist"), arm_l=(20, 80, "open"), mouth="flat", look=(0.5, -0.6), head_tilt=5),
-    "enamorado": pose(arm_l=(140, 20, "open"), arm_r=(140, 20, "open"), eyes="hearts", mouth="open", blush=1.0),
+    "pulgar": pose(arm_r=(55, 95, "thumb"), mouth="open", eyes="happy", blush=0.5),
+    "encoge": pose(arm_l=(55, -80, "open"), arm_r=(55, -80, "open"), mouth="wavy", brows=-0.5, head_tilt=-6),
+    "piensa": pose(arm_r=(20, 150, "fist"), arm_l=(30, 95, "open"), mouth="flat", look=(0.5, -0.6), head_tilt=5),
+    "enamorado": pose(arm_l=(135, 25, "open"), arm_r=(135, 25, "open"), eyes="hearts", mouth="open", blush=1.0),
     "mareado": pose(lean=-6, eyes="spiral", mouth="wavy", sweat=1.0, arm_l=(30, 30, "open"), arm_r=(45, 60, "open")),
-    "asco": pose(eyes="squint", mouth="yuck", brows=0.7, arm_r=(70, 110, "open"), head_tilt=-8, lean=-4),
-    "triste": pose(eyes="teary", mouth="sad", brows=-0.9, head_tilt=-6, arm_l=(5, 5, "open"), arm_r=(5, 5, "open")),
-    "sostiene": pose(arm_r=(35, 95, "hold"), mouth="smile"),
-    "celebra": pose(arm_l=(165, 10, "fist"), arm_r=(165, 10, "fist"), eyes="happy", mouth="open", blush=0.6),
+    "asco": pose(eyes="squint", mouth="yuck", brows=0.7, arm_r=(65, 115, "open"), head_tilt=-8, lean=-4),
+    "triste": pose(eyes="teary", mouth="sad", brows=-0.9, head_tilt=-6, arm_l=(4, 6, "open"), arm_r=(4, 6, "open")),
+    "sostiene": pose(arm_r=(18, 125, "hold"), mouth="smile", look=(0.3, 0.2)),
+    "celebra": pose(arm_l=(160, 15, "fist"), arm_r=(160, 15, "fist"), eyes="happy", mouth="open", blush=0.6),
 }
 
 
 def blend(a, b, u):
-    """Interpola dos poses (ángulos y valores); los elementos discretos cambian a la mitad."""
+    """Interpola dos poses; los valores discretos cambian a la mitad."""
     out = {}
     for k in a:
         va, vb = a[k], b.get(k, a[k])
@@ -73,66 +95,139 @@ def blend(a, b, u):
 
 
 def walk(p, t, speed=1.0, amp=1.0):
-    """Ciclo de caminata encima de una pose."""
     q = dict(p)
     ph = t * 6.0 * speed
     q["leg_l"] = (22 * math.sin(ph) * amp, max(0, -30 * math.sin(ph)) * amp)
     q["leg_r"] = (-22 * math.sin(ph) * amp, max(0, 30 * math.sin(ph)) * amp)
     q["bob"] = abs(math.sin(ph)) * 10 * amp
     if p["arm_l"][0] < 40:
-        q["arm_l"] = (10 - 20 * math.sin(ph) * amp, 15, p["arm_l"][2])
+        q["arm_l"] = (8 - 20 * math.sin(ph) * amp, 18, p["arm_l"][2])
     if p["arm_r"][0] < 40:
-        q["arm_r"] = (10 + 20 * math.sin(ph) * amp, 15, p["arm_r"][2])
+        q["arm_r"] = (8 + 20 * math.sin(ph) * amp, 18, p["arm_r"][2])
     return q
 
 
 # ----------------------------------------------------------------------------
-# partes
+# geometría
 # ----------------------------------------------------------------------------
 
 
-def limb(c, x0, y0, a1, a2, l1, l2, w1, w2, col_shader, side):
-    """Extremidad de dos segmentos. Ángulos en grados; 0 = hacia abajo; positivo = hacia afuera."""
-    r1 = math.radians(a1) * side
-    x1 = x0 + math.sin(r1) * l1
-    y1 = y0 + math.cos(r1) * l1
-    r2 = r1 + math.radians(a2) * side
-    x2 = x1 + math.sin(r2) * l2
-    y2 = y1 + math.cos(r2) * l2
+def seg(c, a, b, w0, w1, col, outline=True, shade=True):
+    """Segmento que se adelgaza de a a b, con sombreado y contorno."""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    L = math.hypot(dx, dy) or 1
+    nx, ny = -dy / L, dx / L
     p = skia.Path()
-    p.moveTo(x0, y0)
-    p.lineTo(x1, y1)
-    p.lineTo(x2, y2)
-    c.drawPath(p, P(col_shader[0], "stroke", w1))
-    c.drawLine(x1, y1, x2, y2, P(col_shader[1], "stroke", w2))
+    p.moveTo(a[0] + nx * w0 / 2, a[1] + ny * w0 / 2)
+    p.lineTo(b[0] + nx * w1 / 2, b[1] + ny * w1 / 2)
+    p.lineTo(b[0] - nx * w1 / 2, b[1] - ny * w1 / 2)
+    p.lineTo(a[0] - nx * w0 / 2, a[1] - ny * w0 / 2)
+    p.close()
+    sh = lin(a[0] + nx * w0 / 2, a[1] + ny * w0 / 2, a[0] - nx * w0 / 2, a[1] - ny * w0 / 2,
+             [mix(col, "#ffffff", 0.12), col, mix(col, "#000000", 0.28)]) if shade else None
+    c.drawPath(p, P(col, shader=sh))
+    if outline:
+        c.drawPath(p, P(OUT, "stroke", 3, alpha=0.5))
+    return p
+
+
+def limb_path(c, pts, w, col, outline=True):
+    """Extremidad continua (con codo/rodilla redondeados) con volumen: base oscura + luz."""
+    p = skia.Path()
+    p.moveTo(*pts[0])
+    for q in pts[1:]:
+        p.lineTo(*q)
+    if outline:
+        c.drawPath(p, P(OUT, "stroke", w + 6, cap=skia.Paint.kRound_Cap, alpha=0.55))
+    c.drawPath(p, P(mix(col, "#000000", 0.25), "stroke", w, cap=skia.Paint.kRound_Cap))
+    c.save()
+    c.translate(-w * 0.12, -w * 0.05)
+    c.drawPath(p, P(col, "stroke", w * 0.72, cap=skia.Paint.kRound_Cap))
+    c.restore()
+    c.save()
+    c.translate(-w * 0.22, -w * 0.08)
+    c.drawPath(p, P(mix(col, "#ffffff", 0.14), "stroke", w * 0.22, cap=skia.Paint.kRound_Cap, alpha=0.8))
+    c.restore()
+
+
+def joint(a1, a2, l1, l2, x0, y0, side):
+    r1 = math.radians(a1) * side
+    x1, y1 = x0 + math.sin(r1) * l1, y0 + math.cos(r1) * l1
+    r2 = r1 + math.radians(a2) * side
+    x2, y2 = x1 + math.sin(r2) * l2, y1 + math.cos(r2) * l2
     return (x1, y1), (x2, y2), math.degrees(r2)
 
 
-def hand(c, x, y, ang, kind, side):
+def hand(c, x, y, ang, kind, side, skin):
     c.save()
     c.translate(x, y)
     c.rotate(-ang)
-    sk = P(SKIN[0], shader=lin(-30, 0, 30, 0, [SKIN[0], SKIN[1]]))
+    sk = P(skin[0], shader=lin(-34, 0, 34, 0, [skin[0], skin[1]]))
+    ol = P(OUT, "stroke", 3, alpha=0.5)
     if kind == "fist":
-        oval(c, 0, 18, 30, 30, sk)
+        rrect(c, -32, 4, 32, 60, 22, sk)
+        rrect(c, -32, 4, 32, 60, 22, ol)
         for i in range(3):
-            c.drawLine(-14 + i * 14, 30, -14 + i * 14, 44, P(SKIN[1], "stroke", 3))
+            c.drawLine(-14 + i * 14, 40, -14 + i * 14, 56, P(skin[1], "stroke", 3))
     elif kind == "point":
-        oval(c, 0, 16, 28, 28, sk)
-        rrect(c, -8, 30, 8, 92, 8, sk)
+        rrect(c, -9, 40, 9, 110, 9, sk)
+        rrect(c, -9, 40, 9, 110, 9, ol)
+        rrect(c, -30, 4, 30, 56, 20, sk)
+        rrect(c, -30, 4, 30, 56, 20, ol)
     elif kind == "thumb":
-        oval(c, 0, 16, 30, 28, sk)
-        rrect(c, side * 18 - 8, -40, side * 18 + 8, 14, 8, sk)
+        rrect(c, -30, 4, 30, 60, 20, sk)
+        rrect(c, -30, 4, 30, 60, 20, ol)
+        rrect(c, side * 22 - 10, -48, side * 22 + 10, 20, 10, sk)
+        rrect(c, side * 22 - 10, -48, side * 22 + 10, 20, 10, ol)
     elif kind == "hold":
-        oval(c, 0, 16, 30, 30, sk)
-        rrect(c, -26, 8, 26, 30, 10, P(SKIN[1]))
-    else:  # abierta, dedos separados
-        oval(c, 0, 18, 30, 30, sk)
+        rrect(c, -32, 4, 32, 58, 20, sk)
+        rrect(c, -32, 4, 32, 58, 20, ol)
+        rrect(c, -30, 26, 30, 46, 10, P(skin[1]))
+    else:  # abierta, con dedos
         for i in range(4):
-            a = math.radians(-30 + i * 20)
-            c.drawLine(math.sin(a) * 22, 30, math.sin(a) * 40, 30 + math.cos(a) * 34, P(SKIN[0], "stroke", 13))
-        c.drawLine(side * 24, 16, side * 50, 0, P(SKIN[0], "stroke", 13))
+            a = math.radians(-24 + i * 16)
+            fx, fy = math.sin(a) * 26, 46
+            c.drawLine(fx, fy, fx + math.sin(a) * 30, fy + math.cos(a) * 34, P(skin[0], "stroke", 15))
+        c.drawLine(side * 26, 24, side * 54, 8, P(skin[0], "stroke", 15))
+        rrect(c, -32, 4, 32, 60, 22, sk)
+        rrect(c, -32, 4, 32, 60, 22, ol)
     c.restore()
+
+
+def arm(c, sh, a1, a2, kind, side, st):
+    """Brazo (manga del saco) → codo → antebrazo → puño de camisa → mano."""
+    el, wr, ang = joint(a1, a2, 165, 155, sh[0], sh[1], side)
+    r = math.radians(ang)
+    ux, uy = math.sin(r), math.cos(r)
+    cuff_a = (wr[0] - ux * 34, wr[1] - uy * 34)
+    cuff_b = (wr[0] - ux * 12, wr[1] - uy * 12)
+    limb_path(c, [sh, el, cuff_a], 72, st["jacket"])
+    limb_path(c, [cuff_a, cuff_b], 46, "#ffffff")
+    hand(c, wr[0] - ux * 4, wr[1] - uy * 4, ang, kind, side, st["skin"])
+    return wr
+
+
+def leg(c, hip, a1, a2, side, st):
+    kn, an, ang = joint(a1 * side, -a2 * side, 205, 195, hip[0], hip[1], side)
+    limb_path(c, [hip, kn, (an[0], an[1] - 10)], 86, st["pants"])
+    c.save()
+    c.translate(*an)
+    c.rotate(-ang * 0.3)
+    shoe = skia.Path()
+    shoe.moveTo(-40 + side * 8, -6)
+    shoe.quadTo(-44 + side * 8, 30, -30 + side * 8, 32)
+    shoe.lineTo(60 + side * 8, 32)
+    shoe.quadTo(70 + side * 8, 10, 40 + side * 8, -4)
+    shoe.close()
+    c.drawPath(shoe, P(st["shoes"], shader=lin(0, -6, 0, 32, [mix(st["shoes"], "#ffffff", 0.25), st["shoes"]])))
+    c.drawPath(shoe, P(OUT, "stroke", 3, alpha=0.5))
+    c.drawLine(-36 + side * 8, 30, 58 + side * 8, 30, P(mix(st["shoes"], "#000000", 0.4), "stroke", 6))
+    c.restore()
+
+
+# ----------------------------------------------------------------------------
+# cara
+# ----------------------------------------------------------------------------
 
 
 def eye(c, x, y, kind, look, t, side):
@@ -179,7 +274,7 @@ def eye(c, x, y, kind, look, t, side):
 
 
 def mouth(c, kind, talk, t):
-    o = talk  # 0..1 apertura por el habla
+    o = talk
     if kind == "smile" and o < 0.2:
         p = skia.Path()
         p.moveTo(-40, 58)
@@ -222,125 +317,193 @@ def mouth(c, kind, talk, t):
         c.drawPath(p, P("#5a1a1a", "stroke", 7))
         oval(c, 14, 84, 12, 12 + 6 * math.sin(t * 6), P("#ff7a8a"))
         return
-    c.drawLine(-30, 72 - 4 * o, 30, 72 - 4 * o, P("#5a1a1a", "stroke", 7))   # flat
+    c.drawLine(-30, 72 - 4 * o, 30, 72 - 4 * o, P("#5a1a1a", "stroke", 7))
 
 
-def head(c, x, y, p, t, talk):
+def hair(c, st):
+    hs, col = st["hair_style"], st["hair"]
+    hp = skia.Path()
+    if hs == "fade":
+        hp.moveTo(-132, -30)
+        hp.cubicTo(-150, -150, -80, -190, 0, -188)
+        hp.cubicTo(80, -190, 150, -150, 132, -30)
+        hp.quadTo(124, -96, 80, -104)
+        hp.quadTo(0, -96, -80, -104)
+        hp.quadTo(-124, -96, -132, -30)
+        hp.close()
+        c.drawPath(hp, P(col, shader=lin(0, -175, 0, -20, [mix(col, "#ffffff", 0.12), col])))
+    elif hs == "ondulado":
+        hp.moveTo(-134, -10)
+        for i in range(7):
+            x0 = -134 + i * 38
+            hp.quadTo(x0 + 19, -196, x0 + 38, -184 + 4 * (i % 2))
+        hp.lineTo(134, -10)
+        hp.quadTo(110, -100, 0, -110)
+        hp.quadTo(-110, -100, -134, -10)
+        hp.close()
+        c.drawPath(hp, P(col, shader=lin(0, -210, 0, -10, [mix(col, "#ffffff", 0.18), col])))
+    else:  # copete
+        hp.moveTo(-134, -10)
+        hp.cubicTo(-150, -150, -60, -210, 20, -200)
+        hp.cubicTo(100, -215, 160, -150, 134, -10)
+        hp.quadTo(120, -90, 70, -110)
+        hp.quadTo(-10, -80, -60, -120)
+        hp.quadTo(-110, -100, -134, -10)
+        hp.close()
+        c.drawPath(hp, P(col, shader=lin(0, -215, 0, -10, [mix(col, "#ffffff", 0.18), col])))
+        c.drawLine(-40, -170, 40, -185, P(mix(col, "#ffffff", 0.35), "stroke", 6, alpha=0.6))
+    c.drawPath(hp, P(OUT, "stroke", 3, alpha=0.4))
+
+
+def head(c, x, y, p, t, talk, st):
+    skin = st["skin"]
     c.save()
     c.translate(x, y)
     c.rotate(p["head_tilt"])
     turn = p["head_turn"]
-    # orejas
     for sd in (-1, 1):
-        oval(c, sd * 124 - turn * 30, 10, 22 * (1 - 0.3 * turn * sd), 34, P(SKIN[1]))
+        oval(c, sd * 124 - turn * 30, 10, 22 * (1 - 0.3 * turn * sd), 34, P(skin[1]))
     face = skia.Path()
-    face.addOval(R.R(-128, -150, 128, 150))
-    c.drawPath(face, P(SKIN[0], shader=rad(-30 + turn * 30, -40, 260, [mix(SKIN[0], "#ffffff", 0.15), SKIN[0], SKIN[1]], [0, .6, 1])))
-    fx = turn * 34  # rasgos se desplazan al girar
-    # barba corta
-    c.save()
-    c.clipPath(face, True)
-    bd = skia.Path()
-    bd.moveTo(-130, 20)
-    bd.cubicTo(-110, 150, 110, 150, 130, 20)
-    bd.lineTo(100, 50)
-    bd.quadTo(0, 110, -100, 50)
-    bd.close()
-    c.drawPath(bd, P("#3a2418", alpha=0.35))
-    c.restore()
+    face.moveTo(0, -150)
+    face.cubicTo(80, -150, 130, -90, 128, -10)
+    face.cubicTo(126, 80, 80, 145, 0, 150)
+    face.cubicTo(-80, 145, -126, 80, -128, -10)
+    face.cubicTo(-130, -90, -80, -150, 0, -150)
+    face.close()
+    c.drawPath(face, P(skin[0], shader=rad(-30 + turn * 30, -40, 260, [mix(skin[0], "#ffffff", 0.15), skin[0], skin[1]], [0, .6, 1])))
+    c.drawPath(face, P(OUT, "stroke", 3, alpha=0.4))
+    fx = turn * 34
+    if st["beard"] > 0:
+        c.save()
+        c.clipPath(face, True)
+        bd = skia.Path()
+        bd.moveTo(-130, 10)
+        bd.cubicTo(-110, 160, 110, 160, 130, 10)
+        bd.lineTo(100, 40)
+        bd.quadTo(0, 110, -100, 40)
+        bd.close()
+        c.drawPath(bd, P(st["hair"], alpha=st["beard"]))
+        c.restore()
     if p["blush"] > 0:
         for sd in (-1, 1):
             oval(c, fx + sd * 70, 40, 26, 14, P("#ff7a8a", alpha=0.45 * p["blush"]))
     for sd in (-1, 1):
         eye(c, fx + sd * 50, -10, p["eyes"], p["look"], t, sd)
-        b = p["brows"]
+        b, up = p["brows"], p["brow_up"]
+        base = -58 - 14 * up
         bp = skia.Path()
-        bp.moveTo(fx + sd * 50 - 26, -58 - (b * 14 if sd < 0 else 0) + (b * 6 if sd > 0 else 0))
-        bp.quadTo(fx + sd * 50, -70 - b * 8, fx + sd * 50 + 26, -58 - (b * 14 if sd > 0 else 0) + (b * 6 if sd < 0 else 0))
-        c.drawPath(bp, P(HAIR, "stroke", 10))
+        bp.moveTo(fx + sd * 24, base + b * 10)          # extremo interior (b>0 enojo, b<0 preocupación)
+        bp.quadTo(fx + sd * 50, base - 12, fx + sd * 76, base - b * 6)
+        c.drawPath(bp, P(st["hair"], "stroke", 10))
     nose = skia.Path()
     nose.moveTo(fx + 2, 6)
     nose.quadTo(fx - 12, 34, fx + 4, 38)
-    c.drawPath(nose, P(SKIN[1], "stroke", 5))
+    c.drawPath(nose, P(skin[1], "stroke", 5))
     c.save()
     c.translate(fx, 0)
     mouth(c, p["mouth"], talk, t)
     c.restore()
-    # cabello con copete
-    hp = skia.Path()
-    hp.moveTo(-134, -10)
-    hp.cubicTo(-150, -150, -60, -210, 20, -200)
-    hp.cubicTo(100, -215, 160, -150, 134, -10)
-    hp.quadTo(120, -90, 70, -110)
-    hp.quadTo(-10, -80, -60, -120)
-    hp.quadTo(-110, -100, -134, -10)
-    hp.close()
     c.save()
     c.translate(turn * 12, 0)
-    c.drawPath(hp, P(HAIR, shader=lin(0, -215, 0, -10, ["#4a3020", HAIR])))
-    c.drawLine(-40, -170, 40, -185, P("#6a4a30", "stroke", 6, alpha=0.6))
+    hair(c, st)
     c.restore()
     if p["sweat"] > 0:
         oval(c, 120, -60 + 10 * math.sin(t * 4), 10, 16, P("#7fd6ff", alpha=p["sweat"]))
     c.restore()
 
 
-def draw(c, x, y, s, t, p, talk=0.0, hold_fn=None, breathe=True):
-    """Dibuja al personaje con pose `p`. talk 0..1 abre la boca al hablar. hold_fn(c, x, y) dibuja un objeto en la mano derecha."""
+# ----------------------------------------------------------------------------
+# cuerpo completo
+# ----------------------------------------------------------------------------
+
+
+def torso(c, st):
+    J, S = st["jacket"], st["shirt"]
+    shirt = skia.Path()
+    shirt.moveTo(-64, -714)
+    shirt.lineTo(64, -714)
+    shirt.lineTo(40, -430)
+    shirt.lineTo(-40, -430)
+    shirt.close()
+    c.drawPath(shirt, P(S))
+    col = skia.Path()  # cuello de la camisa
+    for sd in (-1, 1):
+        col.moveTo(0, -690)
+        col.lineTo(sd * 46, -720)
+        col.lineTo(sd * 40, -676)
+        col.close()
+    c.drawPath(col, P(mix(S, "#000000", 0.08)))
+    if st["tie"]:
+        t1 = skia.Path()
+        t1.moveTo(-14, -684)
+        t1.lineTo(14, -684)
+        t1.lineTo(20, -500)
+        t1.lineTo(0, -470)
+        t1.lineTo(-20, -500)
+        t1.close()
+        c.drawPath(t1, P(st["tie"], shader=lin(-20, 0, 20, 0, [mix(st["tie"], "#ffffff", 0.2), st["tie"], mix(st["tie"], "#000000", 0.25)])))
+        rrect(c, -16, -704, 16, -680, 6, P(mix(st["tie"], "#000000", 0.15)))
+    for sd in (-1, 1):  # saco
+        jk = skia.Path()
+        jk.moveTo(sd * 62, -718)
+        jk.lineTo(sd * 150, -706)
+        jk.quadTo(sd * 192, -690, sd * 182, -610)
+        jk.lineTo(sd * 150, -380)
+        jk.quadTo(sd * 70, -362, sd * 6, -380)
+        jk.lineTo(sd * 6, -470)
+        jk.lineTo(sd * 52, -600)
+        jk.close()
+        c.drawPath(jk, P(J, shader=lin(sd * 6, 0, sd * 192, 0, [mix(J, "#ffffff", 0.08), J, mix(J, "#000000", 0.3)])))
+        c.drawPath(jk, P(OUT, "stroke", 3, alpha=0.5))
+        lp = skia.Path()  # solapa
+        lp.moveTo(sd * 62, -718)
+        lp.lineTo(sd * 96, -640)
+        lp.lineTo(sd * 74, -622)
+        lp.lineTo(sd * 52, -600)
+        lp.close()
+        c.drawPath(lp, P(mix(J, "#ffffff", 0.14)))
+        c.drawPath(lp, P(OUT, "stroke", 2, alpha=0.5))
+    for i in range(2):
+        oval(c, 14, -462 + i * 46, 8, 8, P(mix(J, "#000000", 0.5)))
+    # bolsillo del pecho con el logo (lado del corazón)
+    px, py = 112, -596
+    c.drawLine(px - 36, py, px + 36, py, P(mix(J, "#000000", 0.45), "stroke", 5))
+    img = logo()
+    w = 60
+    h = w * img.height() / img.width()
+    c.drawImageRect(img, R.R(px - w / 2, py - h - 6, px + w / 2, py - 6), R.SAMP, skia.Paint())
+
+
+def draw(c, x, y, s, t, p, style=None, talk=0.0, hold_fn=None, breathe=True):
+    """Dibuja al personaje. hold_fn(c, x, y) dibuja un objeto en la mano derecha (mano 'hold')."""
+    st = style or STYLES["A"]
     br = 4 * math.sin(t * 2.2) if breathe else 0
     c.save()
     c.translate(x, y)
     c.scale(s, s)
-    oval(c, 0, 4, 150, 24, P("#000000", alpha=0.15))
+    oval(c, 0, 6, 160, 24, P("#000000", alpha=0.15))
     c.translate(0, -p["bob"])
     c.rotate(p["lean"])
-    hip = (0, -400)
-    # piernas
     for sd, (a1, a2) in ((-1, p["leg_l"]), (1, p["leg_r"])):
-        _, ank, ang = limb(c, sd * 52, hip[1], a1 * sd, -a2 * sd, 200, 190, 86, 78, (PANTS[0], PANTS[0]), sd)
-        c.save()
-        c.translate(*ank)
-        c.rotate(-ang * 0.3)
-        rrect(c, -36 + sd * 10, -6, 50 + sd * 10, 30, 16, P(SHOE))
-        c.drawRect(R.R(-36 + sd * 10, 22, 50 + sd * 10, 30), P("#b8b4a8"))
-        c.restore()
-    # torso
+        leg(c, (sd * 54, -400), a1, a2, sd, st)
+    c.drawRect(R.R(-128, -440, 128, -398), P(st["pants"]))
+    a1, a2, hk = p["arm_l"]
+    arm(c, (-160, -682), a1, a2, hk, -1, st)
     c.save()
     c.translate(0, br * 0.3)
-    torso = skia.Path()
-    torso.moveTo(-150, -700)
-    torso.quadTo(-185, -690, -175, -620)
-    torso.lineTo(-135, -400)
-    torso.lineTo(135, -400)
-    torso.lineTo(175, -620)
-    torso.quadTo(185, -690, 150, -700)
-    torso.close()
-    c.drawPath(torso, P(SHIRT, shader=lin(-185, 0, 185, 0, ["#0c0c10", "#2a2a34", "#16161c"])))
-    c.drawRect(R.R(-137, -430, 137, -400), P("#6a5a40"))  # cinturón
-    oval(c, 0, -415, 14, 10, P(TRIM))
-    col = skia.Path()
-    col.moveTo(-50, -708)
-    col.lineTo(0, -660)
-    col.lineTo(50, -708)
-    c.drawPath(col, P("#3a3a44", "stroke", 10))
-    oval(c, -80, -610, 14, 14, P(TRIM))  # emblema dorado
-    # brazos
-    for sd, (a1, a2, hk) in ((-1, p["arm_l"]), (1, p["arm_r"])):
-        sh = (sd * 158, -672)
-        oval(c, sh[0], sh[1] + 6, 40, 40, P("#22222a"))
-        _, wr, ang = limb(c, sh[0], sh[1], a1, a2, 160, 150, 68, 56, (SHIRT, SKIN[0]), sd)
-        if sd > 0 and hk == "hold" and hold_fn:
-            hold_fn(c, wr[0], wr[1] + 20)
-        hand(c, wr[0], wr[1], ang, hk, sd)
+    c.drawRect(R.R(-34, -752, 34, -700), P(st["skin"][1]))
+    torso(c, st)
     c.restore()
-    # cuello y cabeza
-    c.drawRect(R.R(-34, -750, 34, -690), P(SKIN[1]))
-    head(c, 0, -870 + br * 0.5, p, t, talk)
+    a1, a2, hk = p["arm_r"]
+    if hk == "hold" and hold_fn:
+        _, wr, _ = joint(a1, a2, 165, 155, 160, -682, 1)
+        hold_fn(c, wr[0], wr[1] + 10)
+    arm(c, (160, -682), a1, a2, hk, 1, st)
+    head(c, 0, -874 + br * 0.5, p, t, talk, st)
     c.restore()
 
 
 def talk_amount(t, words):
-    """Apertura de boca (0..1) según las palabras que se están diciendo en t."""
     for w in words:
         if w["s"] - 0.02 <= t <= w["e"]:
             return 0.5 + 0.5 * abs(math.sin((t - w["s"]) * 22))
