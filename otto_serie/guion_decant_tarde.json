@@ -1,0 +1,32 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {
+  "stability": 0.35,
+  "similarity_boost": 0.8,
+  "style": 0.45,
+  "speed": 1.06
+ },
+ "say": {
+  "Q500": "quinientos quetzales",
+  "120": "ciento veinte",
+  "6": "seis",
+  "5ml": "cinco mililitros",
+  "Q70": "setenta quetzales"
+ },
+ "scenes": [
+  "¡Ey! Si te gustan los perfumes… esto te va a sonar.",
+  "Ves un perfume en todos lados: en videos, en reseñas, tus amigos lo usan… y ya no te lo sacás de la cabeza.",
+  "Así que lo pedís completo. Q500.",
+  "Por fin llega. Abrís la caja, te lo ponés en la mañana y… ¡qué rico! Todos te preguntan qué andás usando.",
+  "Pero llegan las tres de la tarde… y el perfume cambia.",
+  "Las notas frescas de salida se evaporan, queda el fondo… y ese fondo no era para vos. Te empalaga, te marea.",
+  "Y ahora tenés un frasco de Q500… que ni querés usar.",
+  "El error no fue el perfume. Fue no probarlo un día completo en tu piel.",
+  "Por eso en Otto Aleman Perfumes existen los decants: probá un perfume hasta por un mes, con hasta 120 atomizaciones.",
+  "¿Te encantó? Pedí el frasco completo. ¿No? Probá otra fragancia.",
+  "Por el precio de un frasco completo de Q500, llevate hasta 6 fragancias diferentes en decants de 5ml.",
+  "Y con nuestra tarjeta de sellos digital, al juntar 6 sellos… te llevás un decant de 5ml de Q70, ¡gratis!",
+  "Y vos… ¿con qué perfume te pasó eso? Contanos en los comentarios."
+ ]
+}
