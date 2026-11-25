@@ -1,0 +1,49 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {
+  "stability": 0.5,
+  "similarity_boost": 0.8,
+  "style": 0.35,
+  "speed": 0.98
+ },
+ "say": {
+  "Aleman": "Alemán",
+  "Perfumes": "perfumes",
+  "250,000": "doscientas cincuenta mil",
+  "Sky": "Skái"
+ },
+ "scenes": [
+  "Si ponés un frasco azul… y una tapa naranja… ya tenés un perfume.",
+  "Pero cuando le apretás… no sale nada.",
+  "Entonces le echás alcohol: etanol de alta pureza, el que se usa en perfumería.",
+  "Pero solo es alcohol… y huele a farmacia.",
+  "Entonces le agregás las notas de salida: mandarina, naranja, azafrán y salvia. Pero no se echa fruta de verdad: son aceites esenciales que se extraen por destilación o prensado, y se pesan gota a gota en el laboratorio.",
+  "Pero a los quince minutos… ya no huele a nada.",
+  "Entonces le ponés el corazón: caramelo, haba tonka y tagete.",
+  "Pero en la tarde… desaparece.",
+  "Entonces le ponés la base: ambroxan, cedro y vetiver. El ambroxan es una molécula creada en laboratorio que hace que el aroma dure.",
+  "Todo se mezcla en grandes tanques de acero… pero si lo usás de una vez, huele fuerte y desordenado.",
+  "Entonces lo dejás reposar semanas, a veces meses: eso es la maceración. Después lo enfrían y lo filtran para que quede cristalino.",
+  "Al final, las máquinas lo llenan y le ponen la tapa: según la empresa, de su fábrica en Dubái salen unas 250,000 piezas al día.",
+  "Y así… creaste un Mandarin Sky.",
+  "Y si querés ahorrarte todo este proceso, pedilo en decant ya en Otto Aleman Perfumes: escribinos al privado o en los comentarios.",
+  "Y contanos: ¿qué perfume querés que creemos ahora?"
+ ],
+ "pauses": [
+  0.45,
+  0.55,
+  0.45,
+  0.55,
+  0.45,
+  0.55,
+  0.45,
+  0.55,
+  0.45,
+  0.55,
+  0.45,
+  0.6,
+  0.6,
+  0.4
+ ]
+}
