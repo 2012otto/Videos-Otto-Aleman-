@@ -319,67 +319,157 @@ def s0(c, k):  # el hermano más intenso
     sticker(c, "SU HERMANO MÁS INTENSO", 540, 1520, prog(lt, T(13), T(13) + 0.3), bg_col=GOLDD, size=48, rot=-3)
 
 
-def s1(c, k):  # salida: mandarina/naranja + cardamomo y lavanda
-    lt, T = k.lt, k.w
-    warm_bg(c, k.t, "orange")
-    burst = prog(lt, T(3) - 0.1, T(3) + 0.6)
-    mandarin(c, 560, 900, 170, burst, k.t)
-    if lt > T(8):
-        mandarin(c, 560, 900, 120, 0.0, k.t)
-    ck = prog(lt, T(13) - 0.1, T(13) + 0.4)
-    for i in range(6):
-        a = i * 1.05 + k.t * 0.8
-        if ck > 0:
-            cardamom(c, 560 + math.cos(a) * 320 * ck, 900 + math.sin(a) * 240 * ck, 1.6, math.degrees(a))
-    lk = prog(lt, T(15) - 0.1, T(15) + 0.4)
+# --- ingredientes grandes y claros (uno a la vez, como la referencia) ---------
+
+
+def i_mandarin(c, t):
+    r = 230
+    oval(c, 0, 0, r, r * 0.92, P("#ff8a1a", shader=rad(-70, -70, r * 1.5, ["#ffc070", "#ff7a0a", "#c84a00"])))
+    rr = rng(2)
+    for i in range(80):  # poros de la cáscara
+        a, d = rr.random() * 6.28, rr.random() * r * 0.9
+        oval(c, math.cos(a) * d, math.sin(a) * d * 0.92, 3, 3, P("#e06a00", alpha=0.35))
+    oval(c, -70, -80, 60, 40, P("#ffffff", alpha=0.25))
+    for sd in (-1, 1):
+        lf = skia.Path()
+        lf.moveTo(0, -r * 0.92)
+        lf.quadTo(sd * 90, -r * 1.35, sd * 170, -r * 1.1)
+        lf.quadTo(sd * 90, -r * 0.95, 0, -r * 0.92)
+        c.drawPath(lf, P("#3a8a3a", shader=lin(0, -r * 1.3, 0, -r * 0.9, ["#5ab04a", "#2a6a2a"])))
+    c.drawLine(0, -r * 0.92, 6, -r * 1.05, P("#5a3a1a", "stroke", 10))
+
+
+def i_orange_slice(c, t):
+    r = 220
+    oval(c, 0, 0, r, r, P("#ff8a1a"))
+    oval(c, 0, 0, r - 16, r - 16, P("#fff0d0"))
+    oval(c, 0, 0, r - 30, r - 30, P("#ffa030"))
+    for i in range(10):
+        a0 = i * math.pi / 5
+        p = skia.Path()
+        p.moveTo(0, 0)
+        p.arcTo(RECT(-(r - 40), -(r - 40), r - 40, r - 40), math.degrees(a0) + 3, 30, False)
+        p.close()
+        c.drawPath(p, P("#ffb848", shader=rad(0, 0, r, ["#ffe0a0", "#ff9a2a"])))
+    oval(c, 0, 0, 16, 16, P("#fff0d0"))
+
+
+def i_cardamom(c, t):
+    for i, (x, y, rot) in enumerate(((-110, 20, -20), (90, -30, 25), (0, 90, 5))):
+        cardamom(c, x, y, 4.0, rot)
+
+
+def i_lavender(c, t):
     for i in range(5):
-        a = i * 1.25 + 0.6 - k.t * 0.6
-        if lk > 0:
-            lavender(c, 560 + math.cos(a) * 400 * lk, 900 + math.sin(a) * 300 * lk, 1.4, math.degrees(a) + 90)
-    hero(c, k, 880, FEET, 0.55, [(0, "neutral"), (T(3), "espera"), (T(13), "enamorado")])
-    sticker(c, "MANDARINA · NARANJA", 540, 1340, prog(lt, T(5), T(5) + 0.3), bg_col="#ff8a1a", size=46, rot=-3)
-    sticker(c, "CARDAMOMO · LAVANDA", 540, 1450, prog(lt, T(13), T(13) + 0.3), bg_col="#7a4ab8", size=44, rot=3)
+        lavender(c, -60 + i * 30, 0, 2.6, -20 + i * 10)
+    c.drawRect(RECT(-60, 150, 60, 190), P("#c8a26a"))
 
 
-def s2(c, k):  # corazón: caramelo y tonka + pachulí e incienso
-    lt, T = k.lt, k.w
-    warm_bg(c, k.t, "caramel")
-    c.drawRect(RECT(-300, 1180, W + 300, 1240), P("#6a3a1a", shader=lin(0, 1180, 0, 1240, ["#8a5a2a", "#4a2410"])))
-    for i in range(9):  # habas tonka en la mesa
-        tonka(c, 160 + i * 95, 1170 - (i % 2) * 18, 1.3, (i * 23) % 40 - 20)
-    ck = prog(lt, T(4) - 0.3, T(4) + 1.4)
-    if ck > 0:  # caramelo cayendo en cámara lenta
-        c.drawLine(560, -100, 560, lerp(-100, 1160, ck), P("#d8862a", "stroke", 34))
-        oval(c, 560, 1160, 160 * ck, 30 * ck, P("#c8701a"))
-    pk = prog(lt, T(12) - 0.1, T(12) + 0.4)
+def i_caramel(c, t):
+    for sd in (-1, 1):  # envoltura
+        p = skia.Path()
+        p.moveTo(sd * 140, 0)
+        p.lineTo(sd * 260, -80)
+        p.lineTo(sd * 260, 80)
+        p.close()
+        c.drawPath(p, P("#f4c870", alpha=0.8))
+    oval(c, 0, 0, 170, 120, P("#c8701a", shader=rad(-50, -40, 220, ["#ffc070", "#c8701a", "#7a3a0a"])))
+    oval(c, -60, -50, 50, 22, P("#ffffff", alpha=0.35))
+    for i in range(3):  # gotas de caramelo
+        p = skia.Path()
+        x = -80 + i * 80
+        p.moveTo(x - 14, 90)
+        p.quadTo(x, 160 + 20 * i, x + 14, 90)
+        c.drawPath(p, P("#a85a12"))
+
+
+def i_tonka(c, t):
+    for i, (x, y, rot) in enumerate(((-130, -40, -25), (40, -90, 15), (140, 30, 40), (-40, 60, -5), (100, 120, 10))):
+        tonka(c, x, y, 3.2, rot)
+
+
+def i_patchouli(c, t):
+    c.drawLine(0, 220, 0, -220, P("#4a6a2a", "stroke", 12))
     for i in range(6):
-        if pk > 0:
-            a = i * 1.05 + k.t * 0.5
-            patchouli(c, 560 + math.cos(a) * 360 * pk, 760 + math.sin(a) * 200 * pk, 1.3, math.degrees(a))
-    ik = prog(lt, T(14) - 0.1, T(14) + 0.4)
-    if ik > 0:
-        incense(c, 850, 1170, k.t, ik)
-    hero(c, k, 230, FEET, 0.55, [(0, "neutral"), (T(4), "enamorado")])
-    sticker(c, "CARAMELO · HABA TONKA", 600, 1350, prog(lt, T(4), T(4) + 0.3), bg_col="#c8701a", size=44, rot=-3)
-    sticker(c, "PACHULÍ · INCIENSO", 600, 1460, prog(lt, T(12), T(12) + 0.3), bg_col="#3a2014", size=44, rot=3)
+        y = 160 - i * 70
+        for sd in (-1, 1):
+            patchouli(c, sd * 70, y, 1.5, sd * 60)
 
 
-def s3(c, k):  # fondo: vainilla y vetiver, horas en la piel
-    lt, T = k.lt, k.w
-    warm_bg(c, k.t, "wood")
-    vk = prog(lt, T(4) - 0.1, T(4) + 0.4)
-    if vk > 0:
-        for i in range(3):
-            vanilla(c, 300 + i * 120, 700 + i * 90, 1.2 * back_out(vk, 1.4), -20 + i * 15)
-    rk = prog(lt, T(6) - 0.1, T(6) + 0.8)
-    if rk > 0:
-        roots(c, 760, 760, k.t, rk)
-    hk = prog(lt, T(10) - 0.2, T(12))
-    if hk > 0:
-        watch(c, 540, 1180, 110, lerp(9, 18, ease_in_out(prog(lt, T(10), k.D))))
-    hero(c, k, 880, FEET, 0.55, [(0, "neutral"), (T(7), "pulgar")])
-    sticker(c, "VAINILLA · VETIVER", 540, 1450, prog(lt, T(4), T(4) + 0.3), bg_col="#5a3a1a", size=46, rot=-3)
-    sticker(c, "HORAS EN TU PIEL", 300, 1000, prog(lt, T(11), T(11) + 0.3), bg_col=GOLDD, size=40, rot=4)
+def i_incense(c, t):
+    rrect(c, -120, 160, 120, 210, 20, P("#6a4020"))
+    incense(c, -20, 170, t, 1.0)
+
+
+def i_vanilla(c, t):
+    for i in range(3):
+        c.save()
+        c.translate(-40 + i * 40, 40)
+        c.rotate(-30 + i * 25)
+        rrect(c, -14, -200, 14, 200, 14, P("#2a140a", shader=lin(-14, 0, 14, 0, ["#4a2a14", "#1a0a04"])))
+        c.restore()
+    for i in range(6):  # flor de vainilla
+        a = i * math.pi / 3
+        oval(c, 130 + math.cos(a) * 50, -140 + math.sin(a) * 50, 50, 26, P("#fff4d0"))
+    oval(c, 130, -140, 26, 26, P("#ffd04a"))
+
+
+def i_vetiver(c, t):
+    for i in range(16):  # hierba
+        p = skia.Path()
+        x = -120 + i * 16
+        p.moveTo(x, 0)
+        p.quadTo(x + 10 * math.sin(t + i), -150, x + (i - 8) * 14, -260)
+        c.drawPath(p, P("#6aa04a", "stroke", 8))
+    oval(c, 0, 0, 150, 30, P("#6a4a2a"))
+    roots(c, 0, 10, t, 0.9)
+
+
+def i_watch(c, t):
+    watch(c, 0, 0, 150, 9 + (t * 2) % 9)
+
+
+INGR = {
+    1: [(3, i_mandarin, "MANDARINA", "#ff8a1a"), (8, i_orange_slice, "NARANJA", "#ff9a2a"),
+        (13, i_cardamom, "CARDAMOMO", "#5a8a3a"), (15, i_lavender, "LAVANDA", "#7a4ab8")],
+    2: [(4, i_caramel, "CARAMELO", "#c8701a"), (6, i_tonka, "HABA TONKA", "#3a2014"),
+        (12, i_patchouli, "PACHULÍ", "#3a7a3a"), (14, i_incense, "INCIENSO", "#6a4020")],
+    3: [(4, i_vanilla, "VAINILLA", "#5a3a1a"), (6, i_vetiver, "VETIVER", "#5a7a3a"), (10, i_watch, "HORAS EN TU PIEL", GOLDD)],
+}
+MOOD = {1: "orange", 2: "caramel", 3: "wood"}
+SIDE = {1: (950, [(0, "neutral"), (3, "espera"), (13, "enamorado")]),
+        2: (950, [(0, "neutral"), (4, "enamorado")]),
+        3: (950, [(0, "neutral"), (7, "pulgar")])}
+
+
+def ingredient_scene(si):
+    def scene(c, k):
+        lt, T = k.lt, k.w
+        warm_bg(c, k.t, MOOD[si])
+        items = INGR[si]
+        cur = None
+        for j, (wi, fn, lab, col) in enumerate(items):
+            t0 = T(wi) - 0.15 if j else 0.0
+            t1 = T(items[j + 1][0]) - 0.15 if j + 1 < len(items) else 99
+            if t0 <= lt < t1:
+                cur = (j, fn, lab, col, lt - t0)
+        if cur is None:
+            return
+        j, fn, lab, col, u = cur
+        pop = back_out(clamp(u / 0.35), 1.7)
+        glow(c, R.RES.glow_warm, 470, 900, 460, 0.55)
+        c.save()
+        c.translate(470, 930 + 10 * math.sin(k.t * 1.6))  # flota suave, sin dar vueltas
+        c.scale(pop, pop)
+        fn(c, k.t)
+        c.restore()
+        x, keys = SIDE[si]
+        hero(c, k, x, FEET + 200, 0.46, [(T(a) if a else 0, p) for a, p in keys])
+        OVER.append(lambda cc: sticker(cc, lab, 440, 1360, clamp(u / 0.3), bg_col=col, size=60, rot=-3))
+    return scene
+
+
+s1, s2, s3 = ingredient_scene(1), ingredient_scene(2), ingredient_scene(3)
 
 
 def s4(c, k):  # lo comparan con el Scandal… que cuesta mucho más
@@ -488,7 +578,7 @@ def s9(c, k):  # Black Friday: el decant se va llenando, presionado sobre el tub
     dh = 420
     lvl = 0.05 + 0.85 * ease_in_out(prog(lt, 0.3, k.D - 0.4))
     sys.modules["render_ep4"].decant_vec(c, 330, tube_top - dh / 2 + 34, dh, 0, k.t, lvl, 0.5)
-    bk = prog(lt, T(9) - 0.2, T(9) + 0.2)
+    bk = prog(lt, T(9) - 0.3, T(9) + 0.1)
 
     def bf(cc):
         if bk <= 0:
@@ -506,7 +596,7 @@ def s9(c, k):  # Black Friday: el decant se va llenando, presionado sobre el tub
         cc.drawString(txt, -w / 2, 38, f, P("#ffffff", shader=lin(0, -40, 0, 40, ["#ffffff", "#ffd04a"])))
         cc.restore()
     OVER.append(bf)
-    OVER.append(lambda cc: sticker(cc, "¡PEDÍ EL TUYO YA!", 540, 620, prog(lt, T(0), T(0) + 0.3) * (1 - bk), bg_col=GOLDD, size=60, rot=-3))
+    OVER.append(lambda cc: sticker(cc, "¡PEDÍ EL TUYO YA!", 540, 620, prog(lt, T(0), T(0) + 0.3) * (1 - prog(lt, T(9) - 0.6, T(9) - 0.35)), bg_col=GOLDD, size=60, rot=-3))
     ak = prog(lt, T(11) - 0.1, T(11) + 0.2)
     if ak > 0:
         price_tag(c, 790, 960, "Q70", ak, col="#d8d8e0", rot=-8)
@@ -537,9 +627,9 @@ def s9(c, k):  # Black Friday: el decant se va llenando, presionado sobre el tub
 SCENES = [s0, s1, s2, s3, s4, s5, s9]
 CAMS = [
     Cam(1.12, 1.0, punches=(5, 16, 19), focus=((16, 99, 1.3, 700, 900, 0),)),
-    Cam(1.0, 1.1, punches=(3, 5, 8, 13, 15), focus=((1, 6, 1.35, 560, 900, 0),)),
-    Cam(1.05, 1.15, punches=(4, 7, 12, 14), focus=((15, 99, 1.2, 700, 900, 0),)),
-    Cam(1.0, 1.12, punches=(4, 6, 12), focus=((10, 99, 1.35, 540, 1100, 1),)),
+    Cam(1.0, 1.08, drift=12, punches=(3, 8, 13, 15)),
+    Cam(1.0, 1.08, drift=12, punches=(4, 6, 12, 14)),
+    Cam(1.0, 1.08, drift=12, punches=(4, 6, 10)),
     Cam(1.0, 1.08, punches=(7, 13, 14), focus=((12, 99, 1.25, 545, 1100, 0),)),
     Cam(1.1, 1.0, punches=(10, 13, 15)),
     Cam(1.0, 1.08, punches=(9, 13, 16), focus=((0, 8, 1.2, 420, 1000, 0),), rot=1.0),
