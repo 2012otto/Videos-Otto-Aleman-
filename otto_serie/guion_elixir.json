@@ -1,0 +1,19 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.5, "similarity_boost": 0.8, "style": 0.35, "speed": 0.98},
+ "say": {"Aleman": "Alemán", "Perfumes": "perfumes", "Sky": "Skái", "Q70": "setenta quetzales", "Q60": "sesenta quetzales", "6": "seis"},
+ "scenes": [
+  "Todo el mundo habla del Mandarin Sky… pero casi nadie conoce a su hermano más intenso: el Mandarin Sky Elixir.",
+  "Lo rociás… y explota la mandarina y la naranja, pero esta vez con cardamomo y lavanda.",
+  "Después se pone dulce: caramelo y haba tonka… con un toque de pachulí e incienso, más oscuro y elegante.",
+  "Y al fondo queda vainilla y vetiver, pegados a tu piel durante horas.",
+  "Por eso muchos lo comparan con el Scandal de Jean Paul Gaultier… que cuesta mucho más.",
+  "Y si querés oler así de una forma todavía más accesible: pedilo en decant en Otto Aleman Perfumes.",
+  "¿Y cómo se hace un decant? Al frasco le quitamos el atomizador… y queda un tubito.",
+  "El decant tiene una entrada abajo: lo colocamos encima del tubito… y lo vamos presionando, atomización por atomización.",
+  "Hasta que se llena. Así de fácil… y es el mismo perfume original.",
+  "Pedí el tuyo ya y aprovechá los descuentos de Black Friday: antes a Q70, ahora a Q60… y si llevás 6, te regalamos uno ¡gratis!"
+ ],
+ "pauses": [0.45, 0.45, 0.45, 0.5, 0.55, 0.5, 0.45, 0.45, 0.6]
+}
