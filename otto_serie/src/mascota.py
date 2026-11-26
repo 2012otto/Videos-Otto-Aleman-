@@ -47,6 +47,9 @@ STYLES = {
     "C": dict(jacket="#1c2a4a", shirt="#ffffff", tie=None, pants="#1c2a4a", shoes="#3a2214",
               hair="#3a2418", hair_style="ondulado", beard=0.0, skin=("#f4cdb0", "#dba684")),
     # traje negro, camisa negra, corbata dorada, barba
+    # Chepe (el cliente): camiseta naranja, jeans, tenis, pelo rizado, piel morena, sin barba
+    "CHEPE": dict(jacket="#ff8a1a", shirt="#ff8a1a", tie=None, pants="#2f5aa8", shoes="#f4f1ea", print="#ffd04a",
+                  hair="#1a0e08", hair_style="rizado", beard=0.0, skin=("#c98a5e", "#a86a40"), casual=True),
     "D": dict(jacket="#101014", shirt="#2c2c36", tie="#e0b050", pants="#101014", shoes="#101014",
               hair="#120a06", hair_style="copete", beard=0.55, skin=("#c98a62", "#a86a44")),
 }
@@ -201,8 +204,13 @@ def arm(c, sh, a1, a2, kind, side, st):
     ux, uy = math.sin(r), math.cos(r)
     cuff_a = (wr[0] - ux * 34, wr[1] - uy * 34)
     cuff_b = (wr[0] - ux * 12, wr[1] - uy * 12)
-    limb_path(c, [sh, el, cuff_a], 72, st["jacket"])
-    limb_path(c, [cuff_a, cuff_b], 46, "#ffffff")
+    if st.get("casual"):  # manga corta de camiseta + brazo de piel
+        mid = (sh[0] + (el[0] - sh[0]) * 0.55, sh[1] + (el[1] - sh[1]) * 0.55)
+        limb_path(c, [mid, el, cuff_b], 52, st["skin"][0])
+        limb_path(c, [sh, mid], 78, st["jacket"])
+    else:
+        limb_path(c, [sh, el, cuff_a], 72, st["jacket"])
+        limb_path(c, [cuff_a, cuff_b], 46, "#ffffff")
     hand(c, wr[0] - ux * 4, wr[1] - uy * 4, ang, kind, side, st["skin"])
     return wr
 
@@ -332,6 +340,12 @@ def hair(c, st):
         hp.quadTo(-124, -96, -132, -30)
         hp.close()
         c.drawPath(hp, P(col, shader=lin(0, -175, 0, -20, [mix(col, "#ffffff", 0.12), col])))
+    elif hs == "rizado":
+        r = [(-110, -110, 44), (-60, -160, 48), (0, -175, 50), (60, -160, 48), (110, -110, 44), (-130, -50, 34), (130, -50, 34),
+             (-30, -130, 40), (35, -130, 40)]
+        for (x, y, rr) in r:
+            oval(c, x, y, rr, rr, P(col, shader=rad(x - rr * 0.3, y - rr * 0.3, rr * 1.3, [mix(col, "#ffffff", 0.18), col])))
+        return
     elif hs == "ondulado":
         hp.moveTo(-134, -10)
         for i in range(7):
@@ -417,7 +431,33 @@ def head(c, x, y, p, t, talk, st):
 # ----------------------------------------------------------------------------
 
 
+def torso_casual(c, st):
+    J = st["jacket"]
+    tee = skia.Path()
+    tee.moveTo(-60, -716)
+    tee.lineTo(-150, -706)
+    tee.quadTo(-192, -690, -182, -610)
+    tee.lineTo(-150, -380)
+    tee.quadTo(0, -362, 150, -380)
+    tee.lineTo(182, -610)
+    tee.quadTo(192, -690, 150, -706)
+    tee.lineTo(60, -716)
+    tee.quadTo(0, -660, -60, -716)
+    tee.close()
+    c.drawPath(tee, P(J, shader=lin(-192, 0, 192, 0, [mix(J, "#000000", 0.25), mix(J, "#ffffff", 0.1), J, mix(J, "#000000", 0.3)], [0, .35, .6, 1])))
+    c.drawPath(tee, P(OUT, "stroke", 3, alpha=0.5))
+    neck = skia.Path()
+    neck.moveTo(-60, -716)
+    neck.quadTo(0, -660, 60, -716)
+    c.drawPath(neck, P(mix(J, "#000000", 0.35), "stroke", 10))
+    if st.get("print"):  # estampado sencillo
+        oval(c, 0, -560, 60, 60, P(st["print"], alpha=0.9))
+        c.drawPath(skia.Path().addCircle(0, -560, 40), P("#ffffff", "stroke", 6, alpha=0.8))
+
+
 def torso(c, st):
+    if st.get("casual"):
+        return torso_casual(c, st)
     J, S = st["jacket"], st["shirt"]
     shirt = skia.Path()
     shirt.moveTo(-64, -714)

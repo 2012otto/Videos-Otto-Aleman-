@@ -34,11 +34,14 @@ def spoken_tokens(text):
 
 
 def synth(i, text):
+    voice = CFG["eleven_voice"]
+    if isinstance(text, dict):  # escena con otra voz: {"t": texto, "v": voice_id}
+        voice, text = text.get("v", voice), text["t"]
     say, counts = spoken_tokens(text)
     body = json.dumps({"text": say, "model_id": CFG.get("model", "eleven_multilingual_v2"),
                        "voice_settings": CFG.get("settings", {"stability": 0.45, "similarity_boost": 0.8, "style": 0.25})})
     for intento in range(4):
-        r = subprocess.run(["curl", "-sS", "-m", "120", "-X", "POST", API.format(CFG["eleven_voice"]),
+        r = subprocess.run(["curl", "-sS", "-m", "120", "-X", "POST", API.format(voice),
                             "-H", "xi-api-key: proxy-injected", "-H", "Content-Type: application/json", "-d", body],
                            capture_output=True, text=True)
         try:
