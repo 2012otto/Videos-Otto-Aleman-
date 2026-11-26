@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Otto Aleman Perfumes — Mandarin Sky Elixir + cómo se decanta + Black Friday. Personaje A, voz David.
+# Otto Aleman Perfumes — Mandarin Sky Elixir + Black Friday. Personaje A, voz David.
 set -e
 cd "$(dirname "$0")/.."
 export VIDEO_BUILD="$PWD/otto_serie/build_elixir" VO_TRIM=0.15 VO_GAP=0.3 VO_TAIL=2.2

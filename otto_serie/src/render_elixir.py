@@ -65,9 +65,18 @@ def pedestal(c, x, y, w=260, h=520):
 # ----------------------------------------------------------------------------
 
 
-def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0):
+ORIG = dict(sleeve=["#1aa8d0", "#4ad0f0", "#7ae0ff", "#28b4dc"], strap=["#5ad8f8", "#20a0c8"], loop="#3ac0e8",
+            cap=["#e06a10", "#ff9a2a", "#e06a10"], cap2=["#e87a1a", "#ffb04a", "#e87a1a"], handle="#ffa040",
+            text="#1a7a9a", labels=("ODYSSEY", "Mandarin Sky", "EAU DE PARFUM", "LIMITED EDITION"), stitch="#1a3a4a")
+ELIX = dict(sleeve=["#c85a0a", "#ff9a2a", "#ffb04a", "#e06a10"], strap=["#ffa040", "#d86a10"], loop="#e07a14",
+            cap=["#1440a8", "#2f6bf0", "#1440a8"], cap2=["#1a4cc0", "#3a7af8", "#1a4cc0"], handle="#2a66e8",
+            text="#f4e8d8", labels=("ODYSSEY", "Mandarin Sky", "ELIXIR", "LIMITED EDITION"), stitch="#f4e8d8")
+
+
+def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0, look=None):
     """Odyssey Mandarin Sky Elixir: funda naranja de cuero con costuras y correa, tapa azul con asa.
     cap: 1 tapa puesta, 0 quitada. atom: 1 atomizador plateado, 0 solo el tubito blanco."""
+    L = look or ELIX
     c.save()
     c.translate(x, y)
     c.rotate(rot)
@@ -75,8 +84,8 @@ def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0):
     if glow_a > 0:
         glow(c, R.RES.glow_warm, 0, -220, 380, 0.7 * glow_a)
     oval(c, 0, 6, 170, 24, P("#000000", alpha=0.3))
-    # cuello azul
-    rrect(c, -100, -372, 100, -330, 18, P("#1f5ad8", shader=lin(-100, 0, 100, 0, ["#1440a8", "#2f6bf0", "#1440a8"])))
+    # cuello
+    rrect(c, -100, -372, 100, -330, 18, P(L["cap"][1], shader=lin(-100, 0, 100, 0, L["cap"])))
     if atom > 0.02:  # atomizador plateado
         ah = 70 * atom
         rrect(c, -44, -372 - ah, 44, -372, 10, P("#c8c8d0", shader=lin(-44, 0, 44, 0, ["#8a8a96", "#ffffff", "#a8a8b4", "#6a6a74"])))
@@ -91,8 +100,8 @@ def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0):
     body.quadTo(158, -170, 150, -340)
     body.quadTo(0, -352, -150, -340)
     body.close()
-    c.drawPath(body, P("#ff8a1a", shader=lin(-160, 0, 160, 0, ["#c85a0a", "#ff9a2a", "#ffb04a", "#e06a10"], [0, .3, .5, 1])))
-    dash = P("#f4e8d8", "stroke", 3, alpha=0.8)
+    c.drawPath(body, P(L["sleeve"][1], shader=lin(-160, 0, 160, 0, L["sleeve"], [0, .3, .5, 1])))
+    dash = P(L["stitch"], "stroke", 3, alpha=0.8)
     dash.setPathEffect(skia.DashPathEffect.Make([12, 8], 0))
     inner = skia.Path()
     inner.moveTo(-138, -326)
@@ -100,11 +109,10 @@ def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0):
     inner.moveTo(-138, -22)
     inner.quadTo(0, -10, 138, -22)
     c.drawPath(inner, dash)
-    c.drawRect(RECT(-156, -296, 156, -254), P("#f08a1a", shader=lin(0, -296, 0, -254, ["#ffa040", "#d86a10"])))  # correa
-    rrect(c, -24, -304, 24, -246, 6, P("#e07a14"))
-    for i, (txt, sz, col, yy) in enumerate((("ODYSSEY", 26, "#f4e8d8", -190), ("Mandarin Sky", 26, "#ffe0b0", -152),
-                                             ("ELIXIR", 46, "#f4e8d8", -100), ("LIMITED EDITION", 18, "#f4e8d8", -46))):
-        text_center(c, txt, 0, yy, F(R.RES.semi if i in (1, 3) else R.RES.bold, sz), P(col))
+    c.drawRect(RECT(-156, -296, 156, -254), P(L["strap"][0], shader=lin(0, -296, 0, -254, L["strap"])))  # correa
+    rrect(c, -24, -304, 24, -246, 6, P(L["loop"]))
+    for i, (txt, sz, yy) in enumerate(zip(L["labels"], (26, 26, 46 if L is ELIX else 26, 18), (-190, -152, -100, -46))):
+        text_center(c, txt, 0, yy, F(R.RES.semi if i in (1, 3) else R.RES.bold, sz), P(L["text"]))
     rrect(c, -132, -320, -112, -30, 10, P("#ffffff", alpha=0.18))
     # tapa azul con asa
     if cap > 0.02:
@@ -112,14 +120,14 @@ def elixir(c, x, y, s, t, cap=1.0, atom=1.0, glow_a=0.0, rot=0.0):
         c.save()
         c.translate((1 - cap) * 180, cy)
         c.rotate((1 - cap) * 25)
-        rrect(c, -108, -60, 108, 0, 16, P("#1f5ad8", shader=lin(-108, 0, 108, 0, ["#1440a8", "#2f6bf0", "#1440a8"])))
-        rrect(c, -82, -170, 82, -52, 18, P("#2a66e8", shader=lin(-82, 0, 82, 0, ["#1a4cc0", "#3a7af8", "#1a4cc0"])))
+        rrect(c, -108, -60, 108, 0, 16, P(L["cap"][1], shader=lin(-108, 0, 108, 0, L["cap"])))
+        rrect(c, -82, -170, 82, -52, 18, P(L["cap2"][1], shader=lin(-82, 0, 82, 0, L["cap2"])))
         handle = skia.Path()
         handle.moveTo(80, -150)
         handle.lineTo(150, -150)
         handle.lineTo(150, -40)
         handle.lineTo(100, -40)
-        c.drawPath(handle, P("#2a66e8", "stroke", 18))
+        c.drawPath(handle, P(L["handle"], "stroke", 18))
         c.restore()
     c.restore()
 
@@ -302,12 +310,12 @@ def s0(c, k):  # el hermano más intenso
     warm_bg(c, k.t, "amber")
     pedestal(c, 300, 1150, 240, 600)
     pedestal(c, 760, 1100, 260, 700)
-    MS.msky(c, 300, 1124, 0.62, k.t, 0.7, "#ffb04a")
+    elixir(c, 300, 1124, 0.62, k.t, look=ORIG)
     ek = prog(lt, T(16) - 0.3, T(16) + 0.2)
     if ek > 0:
         elixir(c, 760, 1074, 0.75 * (0.6 + 0.4 * back_out(ek, 1.6)), k.t, glow_a=ek)
     ent = ease_out(prog(lt, 0, 0.5))
-    hero(c, k, lerp(-300, 520, ent), FEET + 60, 0.62, [(0, "neutral"), (T(13), "espera"), (T(17), "enamorado")])
+    hero(c, k, lerp(-300, 530, ent), FEET + 140, 0.5, [(0, "neutral"), (T(13), "espera"), (T(17), "enamorado")])
     sticker(c, "SU HERMANO MÁS INTENSO", 540, 1520, prog(lt, T(13), T(13) + 0.3), bg_col=GOLDD, size=48, rot=-3)
 
 
@@ -471,25 +479,24 @@ def s8(c, k):  # se llena: mismo perfume original
     sticker(c, "MISMO PERFUME ORIGINAL", 540, 1420, prog(lt, T(10), T(10) + 0.3), bg_col="#2fbf71", size=48, rot=-3)
 
 
-def s9(c, k):  # Black Friday
+def s9(c, k):  # Black Friday: el decant se va llenando, presionado sobre el tubito
     lt, T = k.lt, k.w
     warm_bg(c, k.t, "black")
+    bs = 1.15
+    elixir(c, 330, 1660, bs, k.t, cap=0.0, atom=0.0, glow_a=0.4)
+    tube_top = 1660 - bs * 400
+    dh = 420
+    lvl = 0.05 + 0.85 * ease_in_out(prog(lt, 0.3, k.D - 0.4))
+    sys.modules["render_ep4"].decant_vec(c, 330, tube_top - dh / 2 + 34, dh, 0, k.t, lvl, 0.5)
     bk = prog(lt, T(9) - 0.2, T(9) + 0.2)
-    intro = 1 - prog(lt, T(9) - 0.4, T(9))
-    if intro > 0:  # "pedí el tuyo ya": el Elixir y el decant al centro
-        c.saveLayerAlpha(None, int(255 * intro))
-        elixir(c, 400, 1300, 0.9, k.t, glow_a=0.8)
-        decant(c, 720, 1120, 420, 8, k.t, 1.0)
-        c.restore()
-        OVER.append(lambda cc: sticker(cc, "¡PEDÍ EL TUYO YA!", 540, 620, prog(lt, T(0), T(0) + 0.3) * intro, bg_col=GOLDD, size=60, rot=-3))
 
     def bf(cc):
         if bk <= 0:
             return
-        s = back_out(bk, 1.8)
+        s_ = back_out(bk, 1.8)
         cc.save()
         cc.translate(540, 620)
-        cc.scale(s, s)
+        cc.scale(s_, s_)
         cc.rotate(-4)
         rrect(cc, -400, -90, 400, 90, 20, P("#000000"))
         rrect(cc, -400, -90, 400, 90, 20, P("#e0203a", "stroke", 8))
@@ -499,34 +506,25 @@ def s9(c, k):  # Black Friday
         cc.drawString(txt, -w / 2, 38, f, P("#ffffff", shader=lin(0, -40, 0, 40, ["#ffffff", "#ffd04a"])))
         cc.restore()
     OVER.append(bf)
+    OVER.append(lambda cc: sticker(cc, "¡PEDÍ EL TUYO YA!", 540, 620, prog(lt, T(0), T(0) + 0.3) * (1 - bk), bg_col=GOLDD, size=60, rot=-3))
     ak = prog(lt, T(11) - 0.1, T(11) + 0.2)
     if ak > 0:
-        price_tag(c, 300, 900, "Q70", ak, col="#d8d8e0", rot=-8)
+        price_tag(c, 790, 960, "Q70", ak, col="#d8d8e0", rot=-8)
         xk = prog(lt, T(13) + 0.1, T(14))
         if xk > 0:
-            c.drawLine(200, 920, lerp(200, 420, xk), lerp(920, 870, xk), P("#e0203a", "stroke", 14))
-        text_center(c, "ANTES", 300, 820, F(R.RES.bold, 40), P("#d8d8e0", alpha=ak))
+            c.drawLine(690, 980, lerp(690, 910, xk), lerp(980, 930, xk), P("#e0203a", "stroke", 14))
+        text_center(c, "ANTES", 790, 880, F(R.RES.bold, 40), P("#d8d8e0", alpha=ak))
     nk = prog(lt, T(14) - 0.1, T(16) + 0.2)
     if nk > 0:
-        price_tag(c, 760, 920, "Q60", nk, col="#ffcf3a", rot=6)
-        text_center(c, "AHORA", 760, 820, F(R.RES.xbold, 48), P("#ffcf3a", alpha=nk))
-        glow(c, R.RES.glow_warm, 760, 920, 260, 0.5 * nk)
-    gk = prog(lt, T(17) - 0.1, T(20))
-    for i in range(6):
-        if gk > i / 7:
-            decant(c, 170 + i * 120, 1230, 220, (-6, 0, 6)[i % 3], k.t, 0.0)
-    fk = prog(lt, T(22) - 0.2, T(24))
-    if fk > 0:
-        decant(c, 920, lerp(1900, 1230, back_out(fk, 1.3)), 260, 10, k.t, 1.0)
-        c.drawString("+", 845, 1250, F(R.RES.xbold, 90), P("#2fbf71", alpha=fk))
-        OVER.append(lambda cc: sticker(cc, "LLEVÁ 6 Y TE REGALAMOS 1", 540, 1430, fk, bg_col="#2fbf71", size=44, rot=-3))
-        OVER.append(lambda cc: sticker(cc, "¡GRATIS!", 540, 1540, prog(lt, T(24) - 0.1, T(24) + 0.2), bg_col="#e0203a", size=70, rot=3))
-    hero(c, k, 920, FEET + 220, 0.38, [(0, "señala"), (T(24) - 0.1, "celebra")], talk=True)
-    if lt > T(24):
+        glow(c, R.RES.glow_warm, 790, 1200, 280, 0.6 * nk)
+        price_tag(c, 790, 1200, "Q60", nk, col="#ffcf3a", rot=6)
+        text_center(c, "AHORA", 790, 1110, F(R.RES.xbold, 48), P("#ffcf3a", alpha=nk))
+    hero(c, k, 830, FEET + 260, 0.34, [(0, "señala"), (T(14), "celebra")], talk=True)
+    if lt > T(16):
         r = rng(3)
         for i in range(60):
             x = r.random() * W
-            y = -50 + ((lt - T(24)) * (400 + 400 * r.random()) + r.random() * 200)
+            y = -50 + ((lt - T(16)) * (400 + 400 * r.random()) + r.random() * 200)
             if y > H:
                 continue
             c.save()
@@ -536,7 +534,7 @@ def s9(c, k):  # Black Friday
             c.restore()
 
 
-SCENES = [s0, s1, s2, s3, s4, s5, s6, s7, s8, s9]
+SCENES = [s0, s1, s2, s3, s4, s5, s9]
 CAMS = [
     Cam(1.12, 1.0, punches=(5, 16, 19), focus=((16, 99, 1.3, 700, 900, 0),)),
     Cam(1.0, 1.1, punches=(3, 5, 8, 13, 15), focus=((1, 6, 1.35, 560, 900, 0),)),
@@ -544,10 +542,7 @@ CAMS = [
     Cam(1.0, 1.12, punches=(4, 6, 12), focus=((10, 99, 1.35, 540, 1100, 1),)),
     Cam(1.0, 1.08, punches=(7, 13, 14), focus=((12, 99, 1.25, 545, 1100, 0),)),
     Cam(1.1, 1.0, punches=(10, 13, 15)),
-    Cam(1.0, 1.0, drift=15, punches=(9, 15), focus=((6, 99, 1.45, 540, 820, 0),)),
-    Cam(1.12, 1.18, drift=10, punches=(1, 7, 14), focus=((0, 99, 1.15, 540, 800, 0),)),
-    Cam(1.0, 1.15, punches=(3, 10)),
-    Cam(1.0, 1.05, punches=(9, 13, 16, 22, 24), rot=1.0),
+    Cam(1.0, 1.08, punches=(9, 13, 16), focus=((0, 8, 1.2, 420, 1000, 0),), rot=1.0),
 ]
 
 

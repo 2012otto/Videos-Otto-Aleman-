@@ -67,20 +67,12 @@ def main():
     place(sfx, impact(), w(4, 7) - 0.1, db(-13))                     # Scandal
     place(sfx, AV.ding(), w(4, 13), db(-16))
     place(sfx, A.shimmer(1.2, seed=4), w(5, 15), db(-13))            # logo
-    place(sfx, thunk(), w(6, 7), db(-12))                            # quitar la tapa
-    place(sfx, AV.click(3), w(6, 11), db(-10))                       # quitar el atomizador
-    place(sfx, thunk(), w(7, 9), db(-12))                            # encajar el decant
-    for j in range(24):
-        place(sfx, pss(), w(7, 13) + j * ((st(8) - w(7, 13) - 0.3) / 24), db(-15))
-    place(sfx, AV.ding(), w(8, 3), db(-13))
-    place(sfx, A.shimmer(1.0, seed=6), w(8, 3), db(-15))
-    place(sfx, impact(), w(9, 9) - 0.1, db(-9))                      # BLACK FRIDAY
-    place(sfx, AV.buzz(0.3), w(9, 13), db(-17))
-    place(sfx, AV.ding(), w(9, 14), db(-12))
-    for j in range(6):
-        place(sfx, AV.pluck(880 + 110 * j, 0.25), w(9, 17) + j * 0.15, db(-15))
-    place(sfx, AV.ding(), w(9, 24) - 0.05, db(-11))
-    place(sfx, A.shimmer(1.4, seed=8), w(9, 24), db(-12))
+    for j in range(10):                                              # el decant se llena (presionado)
+        place(sfx, pss(), st(6) + 0.4 + j * 0.6, db(-22))
+    place(sfx, impact(), w(6, 9) - 0.1, db(-9))                      # BLACK FRIDAY
+    place(sfx, AV.buzz(0.3), w(6, 13), db(-17))
+    place(sfx, AV.ding(), w(6, 14), db(-12))
+    place(sfx, A.shimmer(1.4, seed=8), w(6, 16), db(-12))
     sfx = A.reverb(sfx, 1.0, 0.15, seed=9)
 
     bed = mus + sfx
