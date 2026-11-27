@@ -50,6 +50,15 @@ STYLES = {
     # Chepe (el cliente): camiseta naranja, jeans, tenis, pelo rizado, piel morena, sin barba
     "CHEPE": dict(jacket="#ff8a1a", shirt="#ff8a1a", tie=None, pants="#2f5aa8", shoes="#f4f1ea", print="#ffd04a",
                   hair="#1a0e08", hair_style="rizado", beard=0.0, skin=("#c98a5e", "#a86a40"), casual=True),
+    # gente normal (ropa casual) para los videos
+    "P1": dict(jacket="#f4f4f4", shirt="#f4f4f4", tie=None, pants="#3a5a9a", shoes="#2a2a2a", print=None,
+               hair="#3a2414", hair_style="fade", beard=0.0, skin=("#f4cdb0", "#dba684"), casual=True),
+    "P2": dict(jacket="#2fbf71", shirt="#2fbf71", tie=None, pants="#2a2a34", shoes="#f4f1ea", print=None,
+               hair="#120a06", hair_style="ondulado", beard=0.3, skin=("#c98a5e", "#a86a40"), casual=True),
+    "P3": dict(jacket="#e0405a", shirt="#e0405a", tie=None, pants="#d8c8a8", shoes="#ffffff", print="#ffffff",
+               hair="#5a3a1a", hair_style="rizado", beard=0.0, skin=("#e8b78c", "#c8946a"), casual=True),
+    "P4": dict(jacket="#5a7ad8", shirt="#5a7ad8", tie=None, pants="#1a1a22", shoes="#f4f1ea", print=None,
+               hair="#1a0e08", hair_style="fade", beard=0.5, skin=("#8a5a3a", "#6a4024"), casual=True),
     "D": dict(jacket="#101014", shirt="#2c2c36", tie="#e0b050", pants="#101014", shoes="#101014",
               hair="#120a06", hair_style="copete", beard=0.55, skin=("#c98a62", "#a86a44")),
 }
@@ -450,7 +459,7 @@ def torso_casual(c, st):
     neck.moveTo(-60, -716)
     neck.quadTo(0, -660, 60, -716)
     c.drawPath(neck, P(mix(J, "#000000", 0.35), "stroke", 10))
-    if st.get("print"):  # estampado sencillo
+    if st.get("print"):  # estampado sencillo (franja)
         oval(c, 0, -560, 60, 60, P(st["print"], alpha=0.9))
         c.drawPath(skia.Path().addCircle(0, -560, 40), P("#ffffff", "stroke", 6, alpha=0.8))
 
