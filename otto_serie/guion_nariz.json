@@ -1,0 +1,45 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {
+  "stability": 0.45,
+  "similarity_boost": 0.8,
+  "style": 0.4,
+  "speed": 1.0
+ },
+ "say": {
+  "Aleman": "Alemán",
+  "Perfumes": "perfumes"
+ },
+ "scenes": [
+  "Estás haciendo esto mal con tu perfume… y ni te das cuenta.",
+  "Te lo ponés en la mañana… y a la hora sentís que ya no huele.",
+  "Pero no se fue. Tu nariz te está mintiendo.",
+  "Se llama adaptación olfativa: tu cerebro deja de avisarte de un olor que no cambia.",
+  "¿Y sabés qué tan rápido pasa? En pocas respiraciones… más de la mitad, en los primeros dos minutos.",
+  "Tu cerebro lo hace para protegerte: así puede detectar un olor nuevo, como gas o humo.",
+  "Por eso vos no te olés… pero los demás sí.",
+  "Y aquí está el error: te echás más… y más… y más.",
+  "Y no, oler granos de café no está comprobado.",
+  "Lo que sí ayuda: oler tu propia piel sin perfume, salir al aire fresco… o preguntarle a alguien.",
+  "Y otra cosa que ayuda: rotar perfumes. Tu nariz se acostumbra menos cuando cambiás de fragancia.",
+  "Por eso en Otto Aleman Perfumes tenés decants de cinco y diez mililitros: rotá sin gastar en un frasco completo.",
+  "Y con nuestra oferta de Black Friday: tres por dos. Comprás dos decants… y te llevás uno ¡gratis!",
+  "Así que ya sabés… no hagas esto con tu perfume."
+ ],
+ "pauses": [
+  0.35,
+  0.3,
+  0.4,
+  0.35,
+  0.4,
+  0.35,
+  0.4,
+  0.4,
+  0.35,
+  0.35,
+  0.35,
+  0.35,
+  0.45
+ ]
+}
