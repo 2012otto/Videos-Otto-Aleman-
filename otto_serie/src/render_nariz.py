@@ -428,12 +428,7 @@ def stopwatch_scene(c, t, sec):
 
 
 def color_decant(c, x, y, h, col, t, rot=0.0):
-    sys.modules["render_ep4"].decant_vec(c, x, y, h, rot, t, 0.7, 0.0)
-    c.save()
-    c.translate(x, y)
-    c.rotate(rot)
-    rrect(c, -h * 0.1, h * 0.12, h * 0.1, h * 0.36, h * 0.08, P(col, alpha=0.9))
-    c.restore()
+    sys.modules["render_ep4"].decant_vec(c, x, y, h, rot, t, 0.7, 0.0, liquid=(M.mix(col, "#ffffff", 0.35), col))
 
 
 DEC_COLS = ["#ffb04a", "#ff6a8a", "#7ad0ff", "#b08aff", "#7ad070", "#e0a060"]

@@ -31,7 +31,7 @@ NAUFRAGO = {"shirt": ("#efe4c8", "#d2bf98", "#a8946a"), "hem": "#8a7650", "colla
 # ----------------------------------------------------------------------------
 
 
-def decant_vec(c, x, y, h, rot=0.0, t=0.0, level=0.62, glow_a=0.0, paper=False):
+def decant_vec(c, x, y, h, rot=0.0, t=0.0, level=0.62, glow_a=0.0, paper=False, liquid=None):
     """Decant dibujado: cápsula negra brillante, aro plateado y ventanita con perfume dorado."""
     w = h * 0.25
     c.save()
@@ -63,7 +63,9 @@ def decant_vec(c, x, y, h, rot=0.0, t=0.0, level=0.62, glow_a=0.0, paper=False):
     surf.quadTo(0, lvl - 4 * math.sin(t * 4 + 1), wx1, lvl + 3 * math.sin(t * 4 + 2))
     surf.lineTo(wx1, wy1)
     surf.close()
-    c.drawPath(surf, P("#f2b544", shader=lin(0, lvl, 0, wy1, ["#ffe08a", "#d98a1c"])))
+    lc = liquid or ("#ffe08a", "#d98a1c")  # color del perfume (claro, oscuro), siempre dentro de la ventanita
+    c.drawPath(surf, P(lc[1], shader=lin(0, lvl, 0, wy1, list(lc))))
+    c.drawLine(wx0 + 2, lvl - 1, wx1 - 2, lvl - 1, P("#ffffff", "stroke", 2, alpha=0.5))
     if paper:
         rrect(c, -w * 0.12, wy0 + 4, w * 0.12, wy1 - 6, w * 0.1, P("#f4ead2", alpha=0.85))
     c.restore()

@@ -59,6 +59,14 @@ STYLES = {
                hair="#5a3a1a", hair_style="rizado", beard=0.0, skin=("#e8b78c", "#c8946a"), casual=True),
     "P4": dict(jacket="#5a7ad8", shirt="#5a7ad8", tie=None, pants="#1a1a22", shoes="#f4f1ea", print=None,
                hair="#1a0e08", hair_style="fade", beard=0.5, skin=("#8a5a3a", "#6a4024"), casual=True),
+    "M1": dict(jacket="#ff6aa8", shirt="#ff6aa8", tie=None, pants="#2f4a8a", shoes="#ffffff", print=None, female=True,
+               hair="#2a160c", hair_style="largo", beard=0.0, skin=("#f4cdb0", "#dba684"), casual=True),
+    "M2": dict(jacket="#ffd04a", shirt="#ffd04a", tie=None, pants="#e8e0d0", shoes="#c8402a", print=None, female=True,
+               hair="#120a06", hair_style="cola", beard=0.0, skin=("#c98a5e", "#a86a40"), casual=True, skirt="#2a2a34"),
+    "M3": dict(jacket="#7a4ab8", shirt="#7a4ab8", tie=None, pants="#1a1a22", shoes="#f4f1ea", print=None, female=True,
+               hair="#8a4a1a", hair_style="largo", beard=0.0, skin=("#e8b78c", "#c8946a"), casual=True),
+    "M4": dict(jacket="#2fbfa8", shirt="#2fbfa8", tie=None, pants="#e8e0d0", shoes="#2a2a2a", print=None, female=True,
+               hair="#1a0e08", hair_style="rizado", beard=0.0, skin=("#8a5a3a", "#6a4024"), casual=True, skirt="#f4f1ea"),
     "D": dict(jacket="#101014", shirt="#2c2c36", tie="#e0b050", pants="#101014", shoes="#101014",
               hair="#120a06", hair_style="copete", beard=0.55, skin=("#c98a62", "#a86a44")),
 }
@@ -340,6 +348,17 @@ def mouth(c, kind, talk, t):
 def hair(c, st):
     hs, col = st["hair_style"], st["hair"]
     hp = skia.Path()
+    if hs in ("largo", "cola"):
+        hp.moveTo(-142, 40)
+        hp.cubicTo(-175, -200, 175, -215, 142, 40)
+        hp.quadTo(132, -40, 104, -72)
+        hp.quadTo(40, -40, -20, -92)         # fleco de lado
+        hp.quadTo(-70, -50, -112, -66)
+        hp.quadTo(-134, -30, -142, 40)
+        hp.close()
+        c.drawPath(hp, P(col, shader=lin(0, -165, 0, 20, [mix(col, "#ffffff", 0.18), col])))
+        c.drawPath(hp, P(OUT, "stroke", 3, alpha=0.4))
+        return
     if hs == "fade":
         hp.moveTo(-132, -30)
         hp.cubicTo(-150, -150, -80, -190, 0, -188)
@@ -378,6 +397,32 @@ def hair(c, st):
     c.drawPath(hp, P(OUT, "stroke", 3, alpha=0.4))
 
 
+def back_hair(c, x, y, st, t):
+    hs, col = st["hair_style"], st["hair"]
+    c.save()
+    c.translate(x, y)
+    if hs == "largo":
+        hp = skia.Path()
+        hp.moveTo(-140, -60)
+        sw = 8 * math.sin(t * 1.5)
+        hp.cubicTo(-190, 120, -175, 300, -130 + sw, 360)
+        hp.quadTo(0, 330, 130 + sw, 360)
+        hp.cubicTo(175, 300, 190, 120, 140, -60)
+        hp.close()
+        c.drawPath(hp, P(col, shader=lin(-190, 0, 190, 0, [mix(col, "#000000", 0.25), mix(col, "#ffffff", 0.15), mix(col, "#000000", 0.25)])))
+        c.drawPath(hp, P(OUT, "stroke", 3, alpha=0.35))
+    elif hs == "cola":
+        sw = 14 * math.sin(t * 2.2)
+        tail = skia.Path()
+        tail.moveTo(90, -140)
+        tail.cubicTo(230 + sw, -150, 250 + sw, 60, 190 + sw, 200)
+        tail.cubicTo(200 + sw, 60, 170, -60, 80, -90)
+        tail.close()
+        c.drawPath(tail, P(col, shader=lin(80, 0, 250, 0, [mix(col, "#ffffff", 0.15), col])))
+        oval(c, 110, -130, 18, 18, P("#ff3d6a"))
+    c.restore()
+
+
 def head(c, x, y, p, t, talk, st):
     skin = st["skin"]
     c.save()
@@ -396,6 +441,12 @@ def head(c, x, y, p, t, talk, st):
     c.drawPath(face, P(skin[0], shader=rad(-30 + turn * 30, -40, 260, [mix(skin[0], "#ffffff", 0.15), skin[0], skin[1]], [0, .6, 1])))
     c.drawPath(face, P(OUT, "stroke", 3, alpha=0.4))
     fx = turn * 34
+    if st.get("female"):
+        for sd in (-1, 1):
+            ex = fx + sd * 50
+            for j in range(3):
+                c.drawLine(ex + sd * (14 + j * 6), -36 + j * 4, ex + sd * (24 + j * 8), -46 + j * 4, P("#1a1010", "stroke", 4))
+            c.drawPath(skia.Path().addCircle(sd * 124 - turn * 30, 50, 12), P("#f5c84a", "stroke", 5))
     if st["beard"] > 0:
         c.save()
         c.clipPath(face, True)
@@ -442,6 +493,13 @@ def head(c, x, y, p, t, talk, st):
 
 def torso_casual(c, st):
     J = st["jacket"]
+    if st.get("female"):
+        c.save()
+        c.scale(0.86, 1)
+        st = dict(st, female=False)
+        torso_casual(c, st)
+        c.restore()
+        return
     tee = skia.Path()
     tee.moveTo(-60, -716)
     tee.lineTo(-150, -706)
@@ -536,12 +594,22 @@ def draw(c, x, y, s, t, p, style=None, talk=0.0, hold_fn=None, breathe=True):
     for sd, (a1, a2) in ((-1, p["leg_l"]), (1, p["leg_r"])):
         leg(c, (sd * 54, -400), a1, a2, sd, st)
     c.drawRect(R.R(-128, -440, 128, -398), P(st["pants"]))
+    back_hair(c, 0, -874, st, t)
     a1, a2, hk = p["arm_l"]
     arm(c, (-160, -682), a1, a2, hk, -1, st)
     c.save()
     c.translate(0, br * 0.3)
     c.drawRect(R.R(-34, -752, 34, -700), P(st["skin"][1]))
     torso(c, st)
+    if st.get("skirt"):
+        sk = skia.Path()
+        sk.moveTo(-130, -420)
+        sk.lineTo(130, -420)
+        sk.lineTo(175, -230)
+        sk.quadTo(0, -205, -175, -230)
+        sk.close()
+        c.drawPath(sk, P(st["skirt"], shader=lin(-175, 0, 175, 0, [mix(st["skirt"], "#000000", 0.2), st["skirt"], mix(st["skirt"], "#000000", 0.25)])))
+        c.drawPath(sk, P(OUT, "stroke", 3, alpha=0.5))
     c.restore()
     a1, a2, hk = p["arm_r"]
     if hk == "hold" and hold_fn:
