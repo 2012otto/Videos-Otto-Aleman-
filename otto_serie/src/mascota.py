@@ -42,7 +42,7 @@ STYLES = {
               hair="#2a1a12", hair_style="copete", beard=0.0, skin=("#f1c3a0", "#d99a74")),
     # traje crema, camiseta negra, sin corbata, pelo corto degradado, barba corta
     "B": dict(jacket="#e9dcc4", shirt="#16161c", tie=None, pants="#e9dcc4", shoes="#f4f1ea",
-              hair="#1a120a", hair_style="fade", beard=0.45, skin=("#d9a07a", "#b97a56")),
+              hair="#1a120a", hair_style="fade", beard=0.0, skin=("#d9a07a", "#b97a56")),
     # traje azul marino, camisa blanca sin corbata, pelo ondulado
     "C": dict(jacket="#1c2a4a", shirt="#ffffff", tie=None, pants="#1c2a4a", shoes="#3a2214",
               hair="#3a2418", hair_style="ondulado", beard=0.0, skin=("#f4cdb0", "#dba684")),
@@ -54,11 +54,11 @@ STYLES = {
     "P1": dict(jacket="#f4f4f4", shirt="#f4f4f4", tie=None, pants="#3a5a9a", shoes="#2a2a2a", print=None,
                hair="#3a2414", hair_style="fade", beard=0.0, skin=("#f4cdb0", "#dba684"), casual=True),
     "P2": dict(jacket="#2fbf71", shirt="#2fbf71", tie=None, pants="#2a2a34", shoes="#f4f1ea", print=None,
-               hair="#120a06", hair_style="ondulado", beard=0.3, skin=("#c98a5e", "#a86a40"), casual=True),
+               hair="#120a06", hair_style="ondulado", beard=0.0, skin=("#c98a5e", "#a86a40"), casual=True),
     "P3": dict(jacket="#e0405a", shirt="#e0405a", tie=None, pants="#d8c8a8", shoes="#ffffff", print="#ffffff",
                hair="#5a3a1a", hair_style="rizado", beard=0.0, skin=("#e8b78c", "#c8946a"), casual=True),
     "P4": dict(jacket="#5a7ad8", shirt="#5a7ad8", tie=None, pants="#1a1a22", shoes="#f4f1ea", print=None,
-               hair="#1a0e08", hair_style="fade", beard=0.5, skin=("#8a5a3a", "#6a4024"), casual=True),
+               hair="#1a0e08", hair_style="fade", beard=0.0, skin=("#8a5a3a", "#6a4024"), casual=True),
     "M1": dict(jacket="#ff6aa8", shirt="#ff6aa8", tie=None, pants="#2f4a8a", shoes="#ffffff", print=None, female=True,
                hair="#2a160c", hair_style="largo", beard=0.0, skin=("#f4cdb0", "#dba684"), casual=True),
     "M2": dict(jacket="#ffd04a", shirt="#ffd04a", tie=None, pants="#e8e0d0", shoes="#c8402a", print=None, female=True,
@@ -68,7 +68,7 @@ STYLES = {
     "M4": dict(jacket="#2fbfa8", shirt="#2fbfa8", tie=None, pants="#e8e0d0", shoes="#2a2a2a", print=None, female=True,
                hair="#1a0e08", hair_style="rizado", beard=0.0, skin=("#8a5a3a", "#6a4024"), casual=True, skirt="#f4f1ea"),
     "D": dict(jacket="#101014", shirt="#2c2c36", tie="#e0b050", pants="#101014", shoes="#101014",
-              hair="#120a06", hair_style="copete", beard=0.55, skin=("#c98a62", "#a86a44")),
+              hair="#120a06", hair_style="copete", beard=0.0, skin=("#c98a62", "#a86a44")),
 }
 
 BASE = dict(lean=0.0, bob=0.0, head_tilt=0.0, head_turn=0.0,

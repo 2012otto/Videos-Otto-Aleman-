@@ -1,0 +1,20 @@
+{
+ "eleven_voice": "qRUgOhnxGASxirG4fKjv",
+ "model": "eleven_multilingual_v2",
+ "settings": {"stability": 0.4, "similarity_boost": 0.8, "style": 0.5, "speed": 1.0},
+ "say": {"Aleman": "Alemán", "Perfumes": "perfumes"},
+ "scenes": [
+  "¿Eso es una oferta?… ¡Esto SÍ son ofertas!",
+  "Black Friday…",
+  "¡¡NAVIDEÑO!!",
+  "aquí, en Otto Aleman Perfumes.",
+  "Tres por dos en decants.",
+  "Comprás dos… y el tercero es ¡gratis!",
+  "Elegí entre perfumes árabes, de diseñador… y los más virales.",
+  "En cinco o diez mililitros: probalos sin gastar en un frasco completo.",
+  "Pero corré, que vuela.",
+  "Escribinos al privado o en los comentarios…",
+  "porque esto… SÍ son ofertas."
+ ],
+ "pauses": [0.4, 0.55, 0.3, 0.35, 0.35, 0.35, 0.35, 0.3, 0.35, 0.15]
+}
